@@ -2,11 +2,15 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import rootRoute from "./routes/rootRoute";
+import dbconnection from "./db/dbconnection";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const DBURL = process.env.DBURL || "mongodb:://localhost:27017";
+
+dbconnection(DBURL);
 
 app.use(cors());
 app.use(express.json());

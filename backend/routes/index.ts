@@ -1,3 +1,4 @@
 import promptRoute from "./promptRoute";
+import authRoute from "./authRoute";
 
-export default promptRoute;
+export { promptRoute, authRoute };

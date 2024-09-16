@@ -2,6 +2,7 @@ import axios from "axios";
 import { Request, Response } from "express";
 
 class PromptController {
+  // Generate single prompt
   static generate = async (req: Request, res: Response) => {
     const { prompt } = req.body;
 
@@ -11,7 +12,7 @@ class PromptController {
 
     try {
       const response = await axios.post("http://localhost:11434/api/generate", {
-        model: "llama3.1", // Specify the model you want to use
+        model: "llama3.1",
         prompt: prompt,
         stream: false,
       });

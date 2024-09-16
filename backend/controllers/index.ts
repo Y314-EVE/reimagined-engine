@@ -1,3 +1,4 @@
 import PromptController from "./PromptController";
+import AuthController from "./AuthController";
 
-export default PromptController;
+export { PromptController, AuthController };
