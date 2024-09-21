@@ -1,4 +1,3 @@
-import axios from "axios";
 import { Request, Response } from "express";
 import User from "../models/User";
 import { hashCompare, hashMaker, signToken } from "../helpers";
@@ -58,8 +57,11 @@ class AuthController {
       );
       res.status(201).json({
         code: 201,
-        message: "User registered.",
-        payload: newUser,
+        message: "User register sucessful.",
+        payload: {
+          name: newUser.name,
+          email: newUser.email,
+        },
       });
     } catch (err) {
       console.log(err);
@@ -73,14 +75,17 @@ class AuthController {
   static login = async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
-      const inUseEmail = await User.findOne({ email }).lean().exec();
+      const inUseEmail = await User.findOne({ email: email }).lean().exec();
       if (!inUseEmail) {
         return res.status(401).json({
           code: 401,
           message: "Incorrect email/password.",
         });
       }
-      const isCorrectPassword = hashCompare(inUseEmail.password, password);
+      const isCorrectPassword = await hashCompare(
+        inUseEmail.password,
+        password,
+      );
       if (!isCorrectPassword) {
         return res.status(401).json({
           code: 401,
@@ -150,6 +155,11 @@ class AuthController {
             message: "Password changed.",
           });
         }
+      } else {
+        res.status(500).json({
+          code: 500,
+          message: "Internal server error.",
+        });
       }
     } catch (err) {
       console.log(err);
