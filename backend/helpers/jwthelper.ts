@@ -1,15 +1,23 @@
 import jwt from "jsonwebtoken";
-
-const secret =
-  "6993b1e71601a070ae1a98ebf4e7b45f08458d52a9a445f0262111f745ae2829";
+import dotenv from "dotenv";
+dotenv.config();
+const secret = process.env.JWTSECRET;
 
 export const signToken = (
   payload: { _id: string; name: string },
   expireTime: string,
 ) => {
+  if (!secret) {
+    console.error("JWT secret not configure");
+    process.exit(1);
+  }
   return jwt.sign(payload, secret, { expiresIn: expireTime });
 };
 
 export const verifyToken = (payload: string) => {
+  if (!secret) {
+    console.error("JWT secret not configure");
+    process.exit(1);
+  }
   return jwt.verify(payload, secret);
 };
