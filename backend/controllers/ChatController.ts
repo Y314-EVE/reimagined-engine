@@ -19,7 +19,7 @@ class ChatController {
           return {
             _id: chat._id,
             title: chat.title,
-            createdAt: chat.createdAt.toTimeString(),
+            createdAt: chat.createdAt.toUTCString(),
           };
         });
         res.status(200).json({
