@@ -7,7 +7,7 @@ function App() {
     <>
       <div>
         <Login />
-        <Chatlist />
+        {document.cookie.includes("access_token") ? <Chatlist /> : ""}
       </div>
     </>
   );

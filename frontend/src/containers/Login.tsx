@@ -13,9 +13,14 @@ const Login = () => {
           password: password,
         }
       );
-      document.cookie = `access_token=${
-        loginResponse.data.payload.token
-      }; expires=${new Date(Date.now() + 30 * 864e5).toUTCString()}; path=/`;
+      if (loginResponse.data.code === 200) {
+        document.cookie = `access_token=${
+          loginResponse.data.payload.token
+        }; SameSite=Strict; expires=${new Date(
+          Date.now() + 30 * 864e5
+        ).toUTCString()}; path=/`;
+        window.location.reload();
+      }
     } catch (error) {
       console.error(error);
     }
