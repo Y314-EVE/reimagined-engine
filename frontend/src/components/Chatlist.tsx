@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-interface Chat {
+interface ChatlistItemProps {
   _id: string;
   title: string;
   createdAt: string;
 }
 
-const ChatlistItem = (chat: Chat) => {
+const ChatlistItem = (chat: ChatlistItemProps) => {
   return (
     <div
       className={`flex flex-col flex-1 text-left px-4 border-b-2 border-gray-200 cursor-pointer hover:bg-gray-200`}
@@ -19,7 +19,7 @@ const ChatlistItem = (chat: Chat) => {
 };
 
 const Chatlist = () => {
-  const [chatList, setChatList] = useState(Array<Chat>());
+  const [chatList, setChatList] = useState(Array<ChatlistItemProps>());
   useEffect(() => {
     async function chatListRequest() {
       const token = document.cookie.split("; ").reduce((prev, curr) => {

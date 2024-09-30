@@ -1,13 +1,12 @@
 import "./App.css";
-import { Login } from "./containers";
-import { Chatlist } from "./components";
+import { Login, Chat } from "./containers";
 
 function App() {
   return (
     <>
       <div>
         <Login />
-        {document.cookie.includes("access_token") ? <Chatlist /> : ""}
+        {document.cookie.includes("access_token") ? <Chat /> : ""}
       </div>
     </>
   );
