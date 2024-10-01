@@ -27,7 +27,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-row flex-1 m-8">
+    <div className="flex flex-row py-6">
       <p className="ml-4 mr-1 p-2">Email</p>
       <input
         type="email"

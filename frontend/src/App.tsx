@@ -3,12 +3,10 @@ import { Login, Chat } from "./containers";
 
 function App() {
   return (
-    <>
-      <div>
-        <Login />
-        {document.cookie.includes("access_token") ? <Chat /> : ""}
-      </div>
-    </>
+    <div className="h-screen flex flex-col">
+      <Login />
+      {document.cookie.includes("access_token") ? <Chat /> : ""}
+    </div>
   );
 }
 

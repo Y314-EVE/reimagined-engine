@@ -28,52 +28,28 @@ interface ChatlistItemProps {
   createdAt: string;
 }
 
-const ChatContent = (props: ChatProps) => {
-  const [chat, setChat] = useState<chatData>({
-    _id: "",
-    user: "",
-    title: "",
-    messages: [],
-  });
-
-  useEffect(() => {
-    async function chatRequest() {
-      const token = document.cookie.split("; ").reduce((prev, curr) => {
-        const parts = curr.split("=");
-        return parts[0] === "access_token" ? parts[1] : prev;
-      }, "");
-      const chatResponse = await axios.post(
-        "http://localhost:5000/api/chat/get-chat",
-        { _id: props._id },
-        {
-          headers: { Authorization: token },
-        }
-      );
-      setChat(chatResponse.data.data);
-    }
-    chatRequest();
-  }, [props._id]);
-  return (
-    <div className="w-5/6 p-8 pt-0 mx-2  ">
-      <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
-        <p className="font-bold">{chat.title}</p>
-      </div>
-      <div className="p-1 px-3 border-b-2 border-x-2 rounded-b-xl border-gray-400 flex flex-col">
-        {chat.messages.map((message: MessageProps) => (
-          <Message
-            key={message._id + message.createdAt}
-            isBot={message.bot}
-            content={message.content}
-            createdAt={message.createdAt}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
+interface MessageCreateResponse {
+  code: string;
+  message: string;
+  payload: {
+    user: string;
+    bot: boolean;
+    content: string;
+    context: [];
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  respond: string;
+}
 
 const Chat = () => {
   const [selectedChat, setSelectedChat] = useState("");
+  const [messagUpdate, setMessageUpdate] = useState(0);
+  const token = document.cookie.split("; ").reduce((prev, curr) => {
+    const parts = curr.split("=");
+    return parts[0] === "access_token" ? parts[1] : prev;
+  }, "");
 
   const Chatlist = () => {
     const [chatList, setChatList] = useState(Array<ChatlistItemProps>());
@@ -94,11 +70,6 @@ const Chat = () => {
 
     useEffect(() => {
       async function chatListRequest() {
-        const token = document.cookie.split("; ").reduce((prev, curr) => {
-          const parts = curr.split("=");
-          return parts[0] === "access_token" ? parts[1] : prev;
-        }, "");
-
         const chatListResponse = await axios.get(
           "http://localhost:5000/api/chat/list-chats",
           {
@@ -118,8 +89,9 @@ const Chat = () => {
       }
       chatListRequest();
     }, []);
+
     return (
-      <div className="w-1/6">
+      <div className="w-1/6 ">
         {chatList.map((chat) => (
           <ChatlistItem
             _id={chat._id}
@@ -131,8 +103,117 @@ const Chat = () => {
       </div>
     );
   };
+
+  const InputBox = () => {
+    const [messageInput, setMessageInput] = useState("");
+    async function createMessage() {
+      if (messageInput.trim() === "") {
+        return;
+      }
+      const createMessageResponse = await axios.post(
+        "http://localhost:5000/api/message/create",
+        { chat: selectedChat, content: messageInput },
+        { headers: { Authorization: token } }
+      );
+      setMessageInput("");
+
+      const getResponse: MessageCreateResponse = createMessageResponse.data;
+      await axios
+        .put(
+          "http://localhost:5000/api/message/get-response",
+          {
+            prompt: getResponse.payload._id,
+            respond: getResponse.respond,
+          },
+          { headers: { Authorization: token } }
+        )
+        .then(() => {
+          setMessageUpdate(messagUpdate + 1);
+        });
+    }
+    return (
+      <div className="px-4">
+        <div className="border-2 border-gray-500 rounded-md mb-2 p-2 flex flex-col">
+          <textarea
+            className="border-none flex-1 overflow-y-scroll resize-none"
+            rows={3}
+            value={messageInput}
+            onChange={(e) => {
+              setMessageInput(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                e.currentTarget.blur();
+                createMessage();
+              }
+            }}
+          />
+          <div className="py-1" />
+          <button
+            type="button"
+            className="rounded-full bg-sky-700 text-white font-semibold text-xs self-end"
+            value={messageInput}
+            onChange={(e) => {
+              setMessageInput(e.currentTarget.value);
+            }}
+            onClick={(e) => {
+              e.preventDefault;
+              createMessage();
+            }}
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const ChatContent = (props: ChatProps) => {
+    const [chat, setChat] = useState<chatData>({
+      _id: "",
+      user: "",
+      title: "",
+      messages: [],
+    });
+
+    useEffect(() => {
+      async function chatRequest() {
+        const chatResponse = await axios.post(
+          "http://localhost:5000/api/chat/get-chat",
+          { _id: props._id },
+          {
+            headers: { Authorization: token },
+          }
+        );
+        setChat(chatResponse.data.data);
+      }
+      props._id === "" ? "" : chatRequest();
+    }, [props._id, messagUpdate]);
+    return (
+      <div className="w-5/6 h-full px-4 pb-4 mx-2 ">
+        <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
+          <p className="font-bold">{chat.title}</p>
+        </div>
+        <div className="flex flex-col border-b-2 border-x-2 rounded-b-xl border-gray-400 h-full">
+          <div className="flex flex-col overflow-y-auto h-full">
+            {chat.messages.map((message: MessageProps) => (
+              <Message
+                key={message._id + message.createdAt}
+                isBot={message.bot}
+                content={message.content}
+                createdAt={message.createdAt}
+              />
+            ))}
+          </div>
+          <InputBox />
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="flex flex-1 flex-row">
+    <div className="flex flex-row h-5/6">
       <Chatlist />
       <ChatContent _id={selectedChat} />
     </div>
