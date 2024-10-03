@@ -54,7 +54,7 @@ const Chat = () => {
   const [socket, setSocket] = useState<Socket>();
   const [selectedChat, setSelectedChat] = useState("");
   const [newMessages, setNewMessages] = useState<MessageProps[]>([]);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const newSocket = io("http://localhost:5000");
     setSocket(newSocket);
@@ -63,13 +63,11 @@ const Chat = () => {
   useEffect(() => {
     if (!socket) return;
     socket.on("receive message", (msg) => {
-      // console.log(msg);
-      // if (!newMessages) return;
-
-      const copy = newMessages;
-      copy.push(msg);
-      setNewMessages([...new Set(copy)]);
+      setNewMessages((prev) => [...prev, msg]);
     });
+    return () => {
+      socket.off("receive message");
+    };
   });
 
   const Chatlist = () => {
@@ -97,7 +95,7 @@ const Chat = () => {
             headers: {
               Authorization: token,
             },
-          },
+          }
         );
         setChatList(chatListResponse.data.data);
 
@@ -132,21 +130,34 @@ const Chat = () => {
       title: "",
       messages: newMessages,
     });
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
       if (props.chat === "") return;
+      if (socket) {
+        socket.on("connected chat", (msg) => {
+          console.log(msg);
+        });
+      }
       const chatRequest = async () => {
+        console.log("Chat Request");
         const chatResponse = await axios.post(
           "http://localhost:5000/api/chat/get-chat",
           { _id: props.chat },
           {
             headers: { Authorization: token },
-          },
+          }
         );
 
         setChat(chatResponse.data.data);
       };
       chatRequest();
+      return () => {
+        socket?.off("connected chat");
+        socket?.emit("leave chat", props.chat);
+      };
     }, [props.chat]);
+
     useEffect(() => {
       if (messagesContainerRef.current) {
         messagesContainerRef.current.scrollTop =
@@ -163,7 +174,7 @@ const Chat = () => {
         const createMessageResponse = await axios.post(
           "http://localhost:5000/api/message/create",
           { chat: props.chat, content: messageInput },
-          { headers: { Authorization: token } },
+          { headers: { Authorization: token } }
         );
         setMessageInput("");
 
@@ -175,7 +186,7 @@ const Chat = () => {
             prompt: getResponse.payload._id,
             respond: getResponse.respond,
           },
-          { headers: { Authorization: token } },
+          { headers: { Authorization: token } }
         );
       }
       return (

@@ -36,5 +36,12 @@ const io = new Server(expressServer, {});
 io.on("connection", (iosocket) => {
   socket = iosocket;
   console.log(`User ${socket.id} has connected`);
+  socket.on("leave chat", (chat_id) => {
+    socket.leave(chat_id);
+    console.log(`User ${socket.id} has left chat ${chat_id}`);
+  });
+  socket.on("disconnnect", (iosocket) => {
+    console.log(`User ${socket.id} has disconnected`);
+  });
 });
 export { io, socket };
