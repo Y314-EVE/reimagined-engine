@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import axios from "axios";
 import Message from "../models/Message";
 import Chat from "../models/Chat";
+import { io, socket } from "../server";
 
 class MessageController {
   static listMessages = async (req: Request, res: Response) => {
@@ -83,17 +84,20 @@ class MessageController {
           });
         }
         const newMessage = await new Message({
+          chat: chat,
           user: _id,
           content: content,
           bot: false,
         }).save();
         const respondMessage = await new Message({
+          chat: chat,
           user: _id,
-          content: "Response not available, or pending to prompt.",
+          content: "Thinking...",
           bot: true,
         }).save();
         chatTarget?.messages.push(newMessage._id, respondMessage._id);
         await chatTarget?.save();
+        io.to(chat.toString()).emit("receive message", newMessage);
         res.status(201).json({
           code: 201,
           message: "New message created",
@@ -119,7 +123,7 @@ class MessageController {
     try {
       if (typeof req.user !== "string") {
         const { _id } = req.user;
-        const { prompt, respond } = req.body;
+        const { chat, prompt, respond } = req.body;
         const promptMessage = await Message.findById(prompt).exec();
         const respondMessage = await Message.findById(respond).exec();
         if (typeof _id === "string" && promptMessage && respondMessage) {
@@ -139,6 +143,7 @@ class MessageController {
             respondMessage.content = response;
             respondMessage.context = context;
             await respondMessage.save();
+            io.to(chat.toString()).emit("receive message", respondMessage);
             res.status(200).json({
               code: 200,
               message: "Prompt successful.",

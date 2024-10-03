@@ -11,13 +11,13 @@ const Login = () => {
         {
           email: email,
           password: password,
-        }
+        },
       );
       if (loginResponse.data.code === 200) {
         document.cookie = `access_token=${
           loginResponse.data.payload.token
         }; SameSite=Strict; expires=${new Date(
-          Date.now() + 30 * 864e5
+          Date.now() + 30 * 864e5,
         ).toUTCString()}; path=/`;
         window.location.reload();
       }
@@ -44,13 +44,19 @@ const Login = () => {
         onChange={(event) => {
           setPassword(event.target.value);
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            loginRequest(userEmail, password);
+          }
+        }}
         className="w-48 border-2 rounded"
       />
       <button
         type="button"
         className="mx-4 py-1 border-2 rounded border-gray-100 bg-sky-100 cursor-pointer"
         onClick={(e) => {
-          e.preventDefault;
+          e.preventDefault();
           loginRequest(userEmail, password);
         }}
       >

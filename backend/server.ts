@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
+import { Server, Socket } from "socket.io";
 import cors from "cors";
 import rootRoute from "./routes/rootRoute";
 import dbconnection from "./db/dbconnection";
@@ -25,6 +26,15 @@ app.use(express.urlencoded({ extended: true }));
 
 rootRoute(app);
 
-app.listen(PORT, () => {
+const expressServer = app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+let socket: Socket;
+const io = new Server(expressServer, {});
+
+io.on("connection", (iosocket) => {
+  socket = iosocket;
+  console.log(`User ${socket.id} has connected`);
+});
+export { io, socket };

@@ -8,8 +8,8 @@ const Message = (props: MessageProps) => {
   return (
     <div
       className={`${
-        props.isBot ? "text-white self-start pl-4" : "self-end pr-4"
-      } py-2`}
+        props.isBot ? "text-white self-start" : "self-end"
+      } py-2 px-4`}
     >
       <div
         className={`${

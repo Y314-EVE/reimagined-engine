@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Chat from "../models/Chat";
+import { io, socket } from "../server";
 
 class ChatController {
   static listChats = async (req: Request, res: Response) => {
@@ -53,6 +54,9 @@ class ChatController {
             message: "Unauthorized access.",
           });
         }
+      }
+      if (chat) {
+        socket.join(chat._id.toString());
       }
       res.status(200).json({
         code: 200,

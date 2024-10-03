@@ -1,9 +1,11 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Message } from "../components";
+import { io, Socket } from "socket.io-client";
 
 interface MessageProps {
   _id: string;
+  chat: string;
   user: string;
   bot: boolean;
   content: string;
@@ -18,14 +20,14 @@ interface chatData {
   messages: MessageProps[];
 }
 
-interface ChatProps {
-  _id: string;
-}
-
 interface ChatlistItemProps {
   _id: string;
   title: string;
   createdAt: string;
+}
+
+interface ChatContentProps {
+  chat: string;
 }
 
 interface MessageCreateResponse {
@@ -43,13 +45,32 @@ interface MessageCreateResponse {
   respond: string;
 }
 
+const token = document.cookie.split("; ").reduce((prev, curr) => {
+  const parts = curr.split("=");
+  return parts[0] === "access_token" ? parts[1] : prev;
+}, "");
+
 const Chat = () => {
+  const [socket, setSocket] = useState<Socket>();
   const [selectedChat, setSelectedChat] = useState("");
-  const [messagUpdate, setMessageUpdate] = useState(0);
-  const token = document.cookie.split("; ").reduce((prev, curr) => {
-    const parts = curr.split("=");
-    return parts[0] === "access_token" ? parts[1] : prev;
-  }, "");
+  const [newMessages, setNewMessages] = useState<MessageProps[]>([]);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("receive message", (msg) => {
+      // console.log(msg);
+      // if (!newMessages) return;
+
+      const copy = newMessages;
+      copy.push(msg);
+      setNewMessages([...new Set(copy)]);
+    });
+  });
 
   const Chatlist = () => {
     const [chatList, setChatList] = useState(Array<ChatlistItemProps>());
@@ -76,7 +97,7 @@ const Chat = () => {
             headers: {
               Authorization: token,
             },
-          }
+          },
         );
         setChatList(chatListResponse.data.data);
 
@@ -104,99 +125,107 @@ const Chat = () => {
     );
   };
 
-  const InputBox = () => {
-    const [messageInput, setMessageInput] = useState("");
-    async function createMessage() {
-      if (messageInput.trim() === "") {
-        return;
-      }
-      const createMessageResponse = await axios.post(
-        "http://localhost:5000/api/message/create",
-        { chat: selectedChat, content: messageInput },
-        { headers: { Authorization: token } }
-      );
-      setMessageInput("");
-
-      const getResponse: MessageCreateResponse = createMessageResponse.data;
-      await axios
-        .put(
-          "http://localhost:5000/api/message/get-response",
-          {
-            prompt: getResponse.payload._id,
-            respond: getResponse.respond,
-          },
-          { headers: { Authorization: token } }
-        )
-        .then(() => {
-          setMessageUpdate(messagUpdate + 1);
-        });
-    }
-    return (
-      <div className="px-4">
-        <div className="border-2 border-gray-500 rounded-md mb-2 p-2 flex flex-col">
-          <textarea
-            className="border-none flex-1 overflow-y-scroll resize-none"
-            rows={3}
-            value={messageInput}
-            onChange={(e) => {
-              setMessageInput(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                e.currentTarget.blur();
-                createMessage();
-              }
-            }}
-          />
-          <div className="py-1" />
-          <button
-            type="button"
-            className="rounded-full bg-sky-700 text-white font-semibold text-xs self-end"
-            value={messageInput}
-            onChange={(e) => {
-              setMessageInput(e.currentTarget.value);
-            }}
-            onClick={(e) => {
-              e.preventDefault;
-              createMessage();
-            }}
-          >
-            Send
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  const ChatContent = (props: ChatProps) => {
+  const ChatContent = (props: ChatContentProps) => {
     const [chat, setChat] = useState<chatData>({
       _id: "",
       user: "",
       title: "",
-      messages: [],
+      messages: newMessages,
     });
-
     useEffect(() => {
-      async function chatRequest() {
+      if (props.chat === "") return;
+      const chatRequest = async () => {
         const chatResponse = await axios.post(
           "http://localhost:5000/api/chat/get-chat",
-          { _id: props._id },
+          { _id: props.chat },
           {
             headers: { Authorization: token },
-          }
+          },
         );
+
         setChat(chatResponse.data.data);
+      };
+      chatRequest();
+    }, [props.chat]);
+    useEffect(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop =
+          messagesContainerRef.current.scrollHeight;
       }
-      props._id === "" ? "" : chatRequest();
-    }, [props._id, messagUpdate]);
+    }, [chat.messages]);
+
+    const InputBox = () => {
+      const [messageInput, setMessageInput] = useState("");
+      async function createMessage() {
+        if (messageInput.trim() === "") {
+          return;
+        }
+        const createMessageResponse = await axios.post(
+          "http://localhost:5000/api/message/create",
+          { chat: props.chat, content: messageInput },
+          { headers: { Authorization: token } },
+        );
+        setMessageInput("");
+
+        const getResponse: MessageCreateResponse = createMessageResponse.data;
+        await axios.put(
+          "http://localhost:5000/api/message/get-response",
+          {
+            chat: props.chat,
+            prompt: getResponse.payload._id,
+            respond: getResponse.respond,
+          },
+          { headers: { Authorization: token } },
+        );
+      }
+      return (
+        <div className="px-4">
+          <div className="border-2 border-gray-500 rounded-md mb-2 p-2 flex flex-col">
+            <textarea
+              className="border-none flex-1 overflow-y-scroll resize-none"
+              rows={3}
+              value={messageInput}
+              onChange={(e) => {
+                setMessageInput(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  e.currentTarget.blur();
+                  createMessage();
+                }
+              }}
+            />
+            <div className="py-1" />
+            <button
+              type="button"
+              className="rounded-full bg-sky-700 text-white font-semibold text-xs self-end"
+              value={messageInput}
+              onChange={(e) => {
+                setMessageInput(e.currentTarget.value);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                createMessage();
+              }}
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="w-5/6 h-full px-4 pb-4 mx-2 ">
         <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
           <p className="font-bold">{chat.title}</p>
         </div>
         <div className="flex flex-col border-b-2 border-x-2 rounded-b-xl border-gray-400 h-full">
-          <div className="flex flex-col overflow-y-auto h-full">
+          <div
+            className="flex flex-col overflow-y-auto h-full"
+            ref={messagesContainerRef}
+          >
             {chat.messages.map((message: MessageProps) => (
               <Message
                 key={message._id + message.createdAt}
@@ -215,7 +244,7 @@ const Chat = () => {
   return (
     <div className="flex flex-row h-5/6">
       <Chatlist />
-      <ChatContent _id={selectedChat} />
+      <ChatContent chat={selectedChat} />
     </div>
   );
 };
