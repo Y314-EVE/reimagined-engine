@@ -56,14 +56,18 @@ class ChatController {
         }
       }
       if (chat) {
-        socket.join(chat._id.toString());
-        console.log(
-          `User ${socket.id} connected to chat ${chat._id.toString()}`
-        );
-        io.to(chat._id.toString()).emit(
-          "connected chat",
-          `User ${socket.id} connected to chat ${chat._id.toString()}`
-        );
+        if (socket) {
+          {
+            socket.join(chat._id.toString());
+            console.log(
+              `User ${socket.id} connected to chat ${chat._id.toString()}`
+            );
+            io.to(chat._id.toString()).emit(
+              "connected chat",
+              `User ${socket.id} connected to chat ${chat._id.toString()}`
+            );
+          }
+        }
       }
       res.status(200).json({
         code: 200,
