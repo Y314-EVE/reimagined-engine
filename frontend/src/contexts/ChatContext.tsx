@@ -52,6 +52,7 @@ export const ChatProvider = (props: { children: ReactNode }) => {
 
     return () => {
       socket.off("receive message", addMessage);
+
       //   if (selectedChat) {
       //     socket.emit("leave chat", selectedChat);
       //   }

@@ -53,7 +53,9 @@ class AuthController {
         password: hashedPw,
       }).save();
       console.log(
-        `New registration: ${newUser.name} (${newUser.email}) at ${new Date().toUTCString()}`,
+        `New registration: ${newUser.name} (${
+          newUser.email
+        }) at ${new Date().toUTCString()}`
       );
       res.status(201).json({
         code: 201,
@@ -84,7 +86,7 @@ class AuthController {
       }
       const isCorrectPassword = await hashCompare(
         inUseEmail.password,
-        password,
+        password
       );
       if (!isCorrectPassword) {
         return res.status(401).json({
@@ -94,14 +96,17 @@ class AuthController {
       }
       const { _id, name } = inUseEmail;
       // Stay logined in 30 days
-      // TODO: use methods other than cookies
+      // TODO: use rotational refresh token
       const payload = {
         name: name,
         email: email,
-        token: `Bearer ${signToken({ _id: _id.toString(), name: name }, "30d")}`,
+        token: `Bearer ${signToken(
+          { _id: _id.toString(), name: name },
+          "30d"
+        )}`,
       };
       console.log(
-        `User ${name} (${email}) login at ${new Date().toUTCString()}`,
+        `User ${name} (${email}) login at ${new Date().toUTCString()}`
       );
       res.status(200).json({
         code: 200,

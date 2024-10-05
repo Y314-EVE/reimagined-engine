@@ -40,7 +40,7 @@ io.on("connection", (iosocket) => {
     socket.leave(chat_id);
     console.log(`User ${socket.id} has left chat ${chat_id}`);
   });
-  socket.on("disconnnect", (iosocket) => {
+  socket.on("disconnect", () => {
     console.log(`User ${socket.id} has disconnected`);
   });
 });

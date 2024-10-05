@@ -83,9 +83,19 @@ class MessageController {
             Message: "Unauthorize access.",
           });
         }
+
+        const message =
+          chatTarget && chatTarget.messages.length > 0
+            ? await Message.findById(
+                chatTarget.messages[chatTarget.messages.length - 1]
+              )
+            : null;
+        const context = message ? message.context : [];
+
         const newMessage = await new Message({
           chat: chat,
           user: _id,
+          context: context,
           content: content,
           bot: false,
         }).save();
@@ -136,8 +146,9 @@ class MessageController {
               {
                 model: "llama3.1",
                 prompt: promptMessage.content,
+                context: promptMessage.context,
                 stream: false,
-              },
+              }
             );
             const { response, context } = promptResponse.data;
             respondMessage.content = response;

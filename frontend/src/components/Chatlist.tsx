@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { FiPlus } from "react-icons/fi";
 
 import { useChat } from "../contexts";
 
@@ -12,6 +13,26 @@ interface ChatlistItemProps {
 const Chatlist = () => {
   const { token, setSelectedChat } = useChat();
   const [chatList, setChatList] = useState(Array<ChatlistItemProps>());
+
+  const createChatRequest = async () => {
+    const createChatResponse = await axios.post(
+      "http://localhost:5000/api/chat/create",
+      {},
+      { headers: { Authorization: token } }
+    );
+    if (createChatResponse.data.code === 201) {
+      setSelectedChat(createChatResponse.data.payload._id);
+      const chatListResponse = await axios.get(
+        "http://localhost:5000/api/chat/list-chats",
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      setChatList(chatListResponse.data.data);
+    }
+  };
 
   const ChatlistItem = (chat: ChatlistItemProps) => {
     return (
@@ -28,7 +49,7 @@ const Chatlist = () => {
   };
 
   useEffect(() => {
-    async function chatListRequest() {
+    const chatListRequest = async () => {
       const chatListResponse = await axios.get(
         "http://localhost:5000/api/chat/list-chats",
         {
@@ -45,12 +66,21 @@ const Chatlist = () => {
       //       return parts[0] === "access_token" ? parts[1] : prev;
       //     }, "")
       //   );
-    }
+    };
     chatListRequest();
   }, []);
 
   return (
-    <div className="w-1/6 ">
+    <div className="w-1/6 flex flex-col pl-4">
+      <button
+        className="bg-green-200 text-gray-600 flex flex-row text-center"
+        onClick={() => {
+          createChatRequest();
+        }}
+      >
+        <FiPlus className="mr-2 self-center" />
+        New Chat
+      </button>
       {chatList.map((chat) => (
         <ChatlistItem
           _id={chat._id}
