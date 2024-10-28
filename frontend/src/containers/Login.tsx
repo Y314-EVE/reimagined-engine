@@ -58,10 +58,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-row py-6">
+    <div className="flex flex-col p-6 border-2 border-gray rounded-lg">
       {signUp ? (
-        <div className="flex flex-row">
-          <p className="ml-4 mr-1 p-2">Name</p>
+        <div className="flex flex-col">
+          <p className="p-2">Name</p>
           <input
             type="input"
             value={userName}
@@ -75,7 +75,7 @@ const Login = () => {
         ""
       )}
 
-      <p className="ml-4 mr-1 p-2">Email</p>
+      <p className="p-2">Email</p>
       <input
         type="email"
         value={userEmail}
@@ -85,7 +85,7 @@ const Login = () => {
         className="w-48 border-2 rounded"
       />
 
-      <p className="ml-4 mr-1 p-2">Password</p>
+      <p className="p-2">Password</p>
       <input
         type="password"
         value={password}
@@ -102,8 +102,8 @@ const Login = () => {
       />
 
       {signUp ? (
-        <div className="flex flex-row">
-          <p className="ml-4 mr-1 p-2">Confirm password</p>
+        <div className="flex flex-col">
+          <p className="p-2">Confirm password</p>
           <input
             type="password"
             value={confirmPassword}
@@ -125,7 +125,7 @@ const Login = () => {
 
       <button
         type="button"
-        className="mx-4 py-1 border-2 rounded border-gray-100 bg-sky-100 cursor-pointer"
+        className="mt-2 py-1 border-2 rounded border-gray-100 bg-sky-100 cursor-pointer"
         onClick={(e) => {
           e.preventDefault();
           if (signUp) {
@@ -138,10 +138,10 @@ const Login = () => {
         {signUp ? "Sign up" : "Login"}
       </button>
 
-      <p className="mx-2 self-end">or</p>
+      <p className="self-center mt-2">or</p>
 
       <p
-        className="self-end underline text-blue-500 cursor-pointer"
+        className="self-center underline text-blue-500 cursor-pointer"
         onClick={() => setSignUp((prev) => !prev)}
       >
         {!signUp ? "Sign up" : "Login"}
