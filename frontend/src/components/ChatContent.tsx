@@ -54,7 +54,7 @@ const ChatContent = () => {
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        }
+        },
       );
 
       setChat({
@@ -90,7 +90,7 @@ const ChatContent = () => {
       const createMessageResponse = await axios.post(
         "http://localhost:5000/api/message/create",
         { chat: selectedChat, content: messageInput },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
       setMessageInput("");
 
@@ -102,7 +102,7 @@ const ChatContent = () => {
           prompt: getResponse.payload._id,
           respond: getResponse.respond,
         },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
     }
     return (
@@ -144,26 +144,32 @@ const ChatContent = () => {
   };
 
   return (
-    <div className="w-5/6 h-full px-4 pb-4 mx-2 ">
-      <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
-        <p className="font-bold">{chat.title}</p>
-      </div>
-      <div className="flex flex-col border-b-2 border-x-2 rounded-b-xl border-gray-400 h-full">
-        <div
-          className="flex flex-col overflow-y-auto h-full"
-          ref={messagesContainerRef}
-        >
-          {messages.map((message: MessageProps) => (
-            <Message
-              key={message._id}
-              isBot={message.bot}
-              content={message.content}
-              createdAt={message.createdAt}
-            />
-          ))}
+    <div className="w-5/6 h-full">
+      {selectedChat ? (
+        <div className="h-full px-4 pb-4 mx-2">
+          <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
+            <p className="font-bold">{chat.title}</p>
+          </div>
+          <div className="flex flex-col border-b-2 border-x-2 rounded-b-xl border-gray-400 h-full">
+            <div
+              className="flex flex-col overflow-y-auto h-full"
+              ref={messagesContainerRef}
+            >
+              {messages.map((message: MessageProps) => (
+                <Message
+                  key={message._id}
+                  isBot={message.bot}
+                  content={message.content}
+                  createdAt={message.createdAt}
+                />
+              ))}
+            </div>
+            <InputBox />
+          </div>
         </div>
-        <InputBox />
-      </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };

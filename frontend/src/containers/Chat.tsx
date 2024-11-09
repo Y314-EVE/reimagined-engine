@@ -1,13 +1,16 @@
-import { Chatlist, ChatContent } from "../components";
+import { Chatlist, ChatContent, TopBar } from "../components";
 
 import { ChatProvider } from "../contexts";
 
 const Chat = () => {
   return (
     <ChatProvider>
-      <div className="flex flex-row h-5/6">
-        <Chatlist />
-        <ChatContent />
+      <div className="h-full pb-24">
+        <TopBar />
+        <div className="flex flex-row pt-4 h-full">
+          <Chatlist />
+          <ChatContent />
+        </div>
       </div>
     </ChatProvider>
   );

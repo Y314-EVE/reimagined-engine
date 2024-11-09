@@ -18,7 +18,7 @@ const Chatlist = () => {
     const createChatResponse = await axios.post(
       "http://localhost:5000/api/chat/create",
       {},
-      { headers: { Authorization: token } }
+      { headers: { Authorization: token } },
     );
     if (createChatResponse.data.code === 201) {
       setSelectedChat(createChatResponse.data.payload._id);
@@ -28,7 +28,7 @@ const Chatlist = () => {
           headers: {
             Authorization: token,
           },
-        }
+        },
       );
       setChatList(chatListResponse.data.data);
     }
@@ -56,7 +56,7 @@ const Chatlist = () => {
           headers: {
             Authorization: token,
           },
-        }
+        },
       );
       setChatList(chatListResponse.data.data);
 
@@ -73,13 +73,15 @@ const Chatlist = () => {
   return (
     <div className="w-1/6 flex flex-col pl-4">
       <button
-        className="bg-green-200 text-gray-600 flex flex-row text-center"
+        className="bg-green-200 text-gray-600 mb-2"
         onClick={() => {
           createChatRequest();
         }}
       >
-        <FiPlus className="mr-2 self-center" />
-        New Chat
+        <div className="flex flex-row justify-center place-items-center">
+          <FiPlus className="mr-2" />
+          <p>New Chat</p>
+        </div>
       </button>
       {chatList.map((chat) => (
         <ChatlistItem

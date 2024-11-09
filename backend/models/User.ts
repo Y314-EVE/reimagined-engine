@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    verifiedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true, versionKey: false },
 );

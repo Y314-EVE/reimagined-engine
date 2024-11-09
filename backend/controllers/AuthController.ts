@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 import User from "../models/User";
+import Verification from "../models/Verification";
 import { hashCompare, hashMaker, signToken } from "../helpers";
+
+const EMAIL = process.env.EMAIL || "";
+const EMAILPW = process.env.EMAILPW || "";
 
 class AuthController {
   // FOR TESTING ONLY! DELETE BEFORE DEPLOYMENT
@@ -55,8 +61,61 @@ class AuthController {
       console.log(
         `New registration: ${newUser.name} (${
           newUser.email
-        }) at ${new Date().toUTCString()}`
+        }) at ${new Date().toUTCString()}`,
       );
+
+      // send verification email
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        auth: {
+          user: EMAIL,
+          pass: EMAILPW,
+        },
+      });
+
+      const token = crypto.randomBytes(32).toString("hex");
+
+      const mailOptions = {
+        from: EMAIL,
+        to: email,
+        subject: "Fitness Coach LLM email verification",
+        html:
+          "<p>Please click on the following link to verify your email address:</p>" +
+          '<a href="http://localhost:5000/api/auth/verify-email/' +
+          token +
+          "/" +
+          email +
+          '">http://localhost:5000/api/auth/verify-email/' +
+          token +
+          "/" +
+          email +
+          "</a>",
+      };
+
+      const newVerification = await new Verification({
+        token: token,
+        email: email,
+        expireAt: new Date(Date.now() + 180000),
+      }).save();
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.log(err.message);
+          res.status(500).json({
+            code: 500,
+            message: "Internal server error. Email send failed.",
+          });
+        } else {
+          console.log("Email sent: " + info.response);
+          res.status(200).json({
+            code: 200,
+            message: "Verification email sent successfully.",
+          });
+        }
+      });
+
       res.status(201).json({
         code: 201,
         message: "User register sucessful.",
@@ -84,9 +143,14 @@ class AuthController {
           message: "Incorrect email/password.",
         });
       }
+      if (!inUseEmail.verifiedAt) {
+        return res
+          .status(401)
+          .json({ code: 401, message: "Email not verified." });
+      }
       const isCorrectPassword = await hashCompare(
         inUseEmail.password,
-        password
+        password,
       );
       if (!isCorrectPassword) {
         return res.status(401).json({
@@ -102,11 +166,11 @@ class AuthController {
         email: email,
         token: `Bearer ${signToken(
           { _id: _id.toString(), name: name },
-          "30d"
+          "30d",
         )}`,
       };
       console.log(
-        `User ${name} (${email}) login at ${new Date().toUTCString()}`
+        `User ${name} (${email}) login at ${new Date().toUTCString()}`,
       );
       res.status(200).json({
         code: 200,
@@ -124,7 +188,7 @@ class AuthController {
   // user logout
   static logout = async (req: Request, res: Response) => {
     try {
-      res.clearCookie("token");
+      res.clearCookie("access_token");
       res.status(200).json({
         code: 200,
         message: "Logout successful.",
@@ -165,6 +229,103 @@ class AuthController {
           code: 500,
           message: "Internal server error.",
         });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
+  // send email verification
+  static sendEmailVerification = async (req: Request, res: Response) => {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        auth: {
+          user: EMAIL,
+          pass: EMAILPW,
+        },
+      });
+
+      const { email } = req.body;
+      const token = crypto.randomBytes(32).toString("hex");
+
+      const mailOptions = {
+        from: EMAIL,
+        to: email,
+        subject: "Fitness Coach LLM email verification",
+        html:
+          "<p>Please click on the following link to verify your email address:</p>" +
+          '<a href="http://localhost:5000/api/auth/verify-email/' +
+          token +
+          "/" +
+          email +
+          '">http://localhost:5000/api/auth/verify-email/' +
+          token +
+          "/" +
+          email +
+          "</a>",
+      };
+
+      const newVerification = await new Verification({
+        token: token,
+        email: email,
+        expireAt: new Date(Date.now() + 1800000),
+      }).save();
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.log(err.message);
+          res.status(500).json({
+            code: 500,
+            message: "Internal server error. Email send failed.",
+          });
+        } else {
+          console.log("Email sent: " + info.response);
+          res.status(200).json({
+            code: 200,
+            message: "Verification email sent successfully.",
+          });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
+  // verify email
+  static verifyEmail = async (req: Request, res: Response) => {
+    try {
+      const { token, email } = req.params;
+
+      const user = await User.findOne({ email: email }).exec();
+      if (!user) {
+        return res.status(404).json({ code: 404, message: "Email not found." });
+      }
+      const record = await Verification.findOne({
+        token: token,
+        email: email,
+      }).exec();
+
+      if (!record || record.expireAt < new Date(Date.now())) {
+        res
+          .status(401)
+          .json({ code: 401, message: "Verification link expired." });
+      } else {
+        const verifiedAt = new Date(Date.now());
+        if (user) {
+          user.verifiedAt = verifiedAt;
+          await user.save();
+        }
+        console.log(`${email} is verified by ${verifiedAt}`);
+        res.status(200).json({ code: 200, message: "Email verified." });
       }
     } catch (err) {
       console.log(err);
