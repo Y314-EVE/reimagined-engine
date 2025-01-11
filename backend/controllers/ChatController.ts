@@ -132,7 +132,7 @@ class ChatController {
           message: "Unauthorized access.",
         });
       }
-      await chat.deleteOne();
+      await chat.deleteOne().exec();
       res.status(200).json({
         code: 200,
         message: "Chat deleted.",

@@ -11,14 +11,15 @@ interface ChatlistItemProps {
 }
 
 const Chatlist = () => {
-  const { token, setSelectedChat } = useChat();
-  const [chatList, setChatList] = useState(Array<ChatlistItemProps>());
+  const { token, setSelectedChat, chatList, getChatList, setChatList } =
+    useChat();
+  // const [chatList, setChatList] = useState(Array<ChatlistItemProps>());
 
   const createChatRequest = async () => {
     const createChatResponse = await axios.post(
       "http://localhost:5000/api/chat/create",
       {},
-      { headers: { Authorization: token } },
+      { headers: { Authorization: token } }
     );
     if (createChatResponse.data.code === 201) {
       setSelectedChat(createChatResponse.data.payload._id);
@@ -28,7 +29,7 @@ const Chatlist = () => {
           headers: {
             Authorization: token,
           },
-        },
+        }
       );
       setChatList(chatListResponse.data.data);
     }
@@ -49,25 +50,26 @@ const Chatlist = () => {
   };
 
   useEffect(() => {
-    const chatListRequest = async () => {
-      const chatListResponse = await axios.get(
-        "http://localhost:5000/api/chat/list-chats",
-        {
-          headers: {
-            Authorization: token,
-          },
-        },
-      );
-      setChatList(chatListResponse.data.data);
+    // const chatListRequest = async () => {
+    //   const chatListResponse = await axios.get(
+    //     "http://localhost:5000/api/chat/list-chats",
+    //     {
+    //       headers: {
+    //         Authorization: token,
+    //       },
+    //     },
+    //   );
+    //   setChatList(chatListResponse.data.data);
 
-      //   console.log(
-      //     document.cookie.split("; ").reduce((prev, curr) => {
-      //       const parts = curr.split("=");
-      //       return parts[0] === "access_token" ? parts[1] : prev;
-      //     }, "")
-      //   );
-    };
-    chatListRequest();
+    //   //   console.log(
+    //   //     document.cookie.split("; ").reduce((prev, curr) => {
+    //   //       const parts = curr.split("=");
+    //   //       return parts[0] === "access_token" ? parts[1] : prev;
+    //   //     }, "")
+    //   //   );
+    // };
+    // chatListRequest();
+    getChatList();
   }, []);
 
   return (

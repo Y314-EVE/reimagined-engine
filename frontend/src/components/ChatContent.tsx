@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useChat } from "../contexts";
 import { Message } from "../components";
+import { FiEdit2, FiDelete, FiCheck, FiX } from "react-icons/fi";
+import {} from "../components/Chatlist";
 
 interface chatData {
   _id: string;
@@ -42,8 +44,16 @@ const ChatContent = () => {
     title: "",
   });
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const { token, socket, messages, setMessages, addMessage, selectedChat } =
-    useChat();
+  const {
+    token,
+    socket,
+    messages,
+    setMessages,
+    addMessage,
+    selectedChat,
+    setSelectedChat,
+    getChatList,
+  } = useChat();
 
   useEffect(() => {
     if (!selectedChat) return;
@@ -54,7 +64,7 @@ const ChatContent = () => {
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        },
+        }
       );
 
       setChat({
@@ -90,7 +100,7 @@ const ChatContent = () => {
       const createMessageResponse = await axios.post(
         "http://localhost:5000/api/message/create",
         { chat: selectedChat, content: messageInput },
-        { headers: { Authorization: token } },
+        { headers: { Authorization: token } }
       );
       setMessageInput("");
 
@@ -102,7 +112,7 @@ const ChatContent = () => {
           prompt: getResponse.payload._id,
           respond: getResponse.respond,
         },
-        { headers: { Authorization: token } },
+        { headers: { Authorization: token } }
       );
     }
     return (
@@ -142,14 +152,100 @@ const ChatContent = () => {
       </div>
     );
   };
+  const ChatTitle = ({ title }: { title: string }) => {
+    const [isEditTitle, setIsEditTitle] = useState(false);
+    const [chatTitle, setChatTitle] = useState(title);
+    const inputRef = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+      if (inputRef.current !== null) {
+        inputRef.current.focus();
+      }
+    });
+    const handleSaveTitle = async () => {
+      const changeTitleResponse = await axios.put(
+        "http://localhost:5000/api/chat/change-title",
+        { _id: chat._id, title: chatTitle },
+        { headers: { Authorization: token } }
+      );
+      getChatList();
+      const chatResponse = await axios.post(
+        "http://localhost:5000/api/chat/get-chat",
+        { _id: selectedChat },
+        {
+          headers: { Authorization: token },
+        }
+      );
 
+      setChat({
+        _id: chatResponse.data.data._id,
+        user: chatResponse.data.data.user,
+        title: chatResponse.data.data.title,
+      });
+    };
+    const handleDeleteChat = async () => {
+      if (confirm("Are you sure to delete the chat?")) {
+        const deleteChatResponse = await axios.put(
+          "http://localhost:5000/api/chat/delete",
+          { _id: chat._id },
+          { headers: { Authorization: token } }
+        );
+        setSelectedChat("");
+        getChatList();
+      }
+    };
+
+    return (
+      <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
+        <div className="">
+          {isEditTitle ? (
+            <div className="flex flex-row flex-1 items-center justify-around">
+              <input
+                className="font-bold flex-grow ml-2"
+                value={chatTitle}
+                onChange={(e) => setChatTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSaveTitle();
+                  }
+                }}
+                ref={inputRef}
+              />
+              <FiCheck
+                className="cursor-pointer mx-2"
+                onClick={() => handleSaveTitle()}
+              />
+              <FiX
+                className="cursor-pointer mr-4"
+                onClick={() => setIsEditTitle(false)}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-row flex-1 items-center justify-around">
+              <p className="font-bold flex-grow ml-2">{chat.title}</p>
+              <FiEdit2
+                className="cursor-pointer mr-2"
+                onClick={() => {
+                  setIsEditTitle(true);
+                }}
+              />
+              <FiDelete
+                className="cursor-pointer mr-4"
+                onClick={() => {
+                  handleDeleteChat();
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="w-5/6 h-full">
       {selectedChat ? (
         <div className="h-full px-4 pb-4 mx-2">
-          <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
-            <p className="font-bold">{chat.title}</p>
-          </div>
+          <ChatTitle title={chat.title} />
           <div className="flex flex-col border-b-2 border-x-2 rounded-b-xl border-gray-400 h-full">
             <div
               className="flex flex-col overflow-y-auto h-full"

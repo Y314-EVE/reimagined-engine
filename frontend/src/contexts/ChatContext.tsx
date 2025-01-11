@@ -5,6 +5,7 @@ import {
   useState,
   createContext,
 } from "react";
+import axios from "axios";
 import { io, Socket } from "socket.io-client";
 
 interface ChatContextType {
@@ -12,9 +13,17 @@ interface ChatContextType {
   socket: Socket | null;
   selectedChat: string | null;
   messages: MessageProps[];
+  chatList: ChatlistItemProps[];
   setSelectedChat: (chat: string) => void;
   setMessages: (messages: MessageProps[]) => void;
   addMessage: (msg: MessageProps) => void;
+  getChatList: () => void;
+  setChatList: (chatList: ChatlistItemProps[]) => void;
+}
+interface ChatlistItemProps {
+  _id: string;
+  title: string;
+  createdAt: string;
 }
 interface MessageProps {
   _id: string;
@@ -38,8 +47,20 @@ export const ChatProvider = (props: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageProps[]>([]);
+  const [chatList, setChatList] = useState<ChatlistItemProps[]>([]);
   const addMessage = (msg: MessageProps) => {
     setMessages((prev) => [...prev, msg]);
+  };
+  const getChatList = async () => {
+    const getChatListResponse = await axios.get(
+      "http://localhost:5000/api/chat/list-chats",
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+    setChatList(getChatListResponse.data.data);
   };
   useEffect(() => {
     if (!socket) {
@@ -65,9 +86,12 @@ export const ChatProvider = (props: { children: ReactNode }) => {
         socket,
         selectedChat,
         messages,
+        chatList,
         setSelectedChat,
         setMessages,
         addMessage,
+        getChatList,
+        setChatList,
       }}
     >
       {props.children}
