@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useState } from "react";
 
 const Login = () => {
@@ -7,6 +7,8 @@ const Login = () => {
   const [userName, setUserName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [signUp, setSignUp] = useState(false);
+  const [loginFailed, setLoginFailed] = useState(false);
+  const [loginFailedMessage, setLoginFailedMessage] = useState("");
 
   const loginRequest = async (email: string, password: string) => {
     try {
@@ -24,11 +26,13 @@ const Login = () => {
           Date.now() + 30 * 864e5
         ).toUTCString()}; path=/`;
         window.location.reload();
-      } else if (loginResponse.data.code === 401) {
-        alert("Incorrect email/password, please try again");
       }
     } catch (error) {
-      console.error(error);
+      setLoginFailed(true);
+      // console.error(error);
+      if (error instanceof AxiosError) {
+        setLoginFailedMessage(error.response?.data.message);
+      }
     }
   };
 
@@ -100,6 +104,12 @@ const Login = () => {
         }}
         className="w-48 border-2 rounded"
       />
+
+      {loginFailed ? (
+        <p className="flex text-red-600 p-1">{loginFailedMessage}</p>
+      ) : (
+        ""
+      )}
 
       {signUp ? (
         <div className="flex flex-col">

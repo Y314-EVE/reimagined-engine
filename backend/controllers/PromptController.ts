@@ -12,7 +12,7 @@ class PromptController {
 
     try {
       const response = await axios.post("http://localhost:11434/api/generate", {
-        model: "llama3.1",
+        model: "hf.co/Eve-31415/fitness-training",
         prompt: prompt,
         stream: false,
       });
@@ -34,7 +34,7 @@ class PromptController {
 
     try {
       const response = await axios.post("http://localhost:11434/api/chat", {
-        model: "llama3.1",
+        model: "hf.co/Eve-31415/fitness-training",
         messages: [
           {
             role: "user",

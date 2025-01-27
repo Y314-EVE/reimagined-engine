@@ -43,6 +43,7 @@ const ChatContent = () => {
     user: "",
     title: "",
   });
+  const [waitingRespond, setWaitingRespond] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const {
     token,
@@ -77,6 +78,7 @@ const ChatContent = () => {
       });
     };
     chatRequest();
+    socket?.on("receive message", () => setWaitingRespond(false));
     return () => {
       socket?.off("connected chat");
       socket?.emit("leave chat", selectedChat);
@@ -89,7 +91,7 @@ const ChatContent = () => {
       messagesContainerRef.current.scrollTop =
         messagesContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, waitingRespond]);
 
   const InputBox = () => {
     const [messageInput, setMessageInput] = useState("");
@@ -103,6 +105,7 @@ const ChatContent = () => {
         { headers: { Authorization: token } }
       );
       setMessageInput("");
+      setWaitingRespond(true);
 
       const getResponse: MessageCreateResponse = createMessageResponse.data;
       await axios.put(
@@ -259,6 +262,16 @@ const ChatContent = () => {
                   createdAt={message.createdAt}
                 />
               ))}
+
+              {waitingRespond ? (
+                <div className="self-start my-2 mx-4 bg-blue-600 text-white w-auto max-w-5xl py-4 px-4 border-2 border-sky-400 rounded-lg flex gap-2">
+                  <div className="h-2 w-2 rounded-full bg-blue-300 animate-pulse [animation-delay:-0.3s]" />
+                  <div className="h-2 w-2 rounded-full bg-blue-300 animate-pulse [animation-delay:-0.15s]" />
+                  <div className="h-2 w-2 rounded-full bg-blue-300 animate-pulse" />
+                </div>
+              ) : (
+                ""
+              )}
             </div>
             <InputBox />
           </div>

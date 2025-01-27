@@ -144,7 +144,8 @@ class MessageController {
             const promptResponse = await axios.post(
               "http://localhost:11434/api/generate",
               {
-                model: "llama3.1",
+                // model: "hf.co/Eve-31415/fitness-training",
+                model: "Llama3.1",
                 prompt: promptMessage.content,
                 context: promptMessage.context,
                 stream: false,
