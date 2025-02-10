@@ -1,3 +1,9 @@
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+
 interface MessageProps {
   isBot: boolean;
   content: string;
@@ -13,10 +19,14 @@ const Message = (props: MessageProps) => {
     >
       <div
         className={`${
-          props.isBot ? "bg-blue-600 text-white" : "bg-slate-300"
+          props.isBot ? "bg-blue-600 text-white" : "bg-green-600"
         } w-auto max-w-5xl p-2 border-2 border-sky-400 rounded-lg`}
       >
-        <p>{props.content}</p>
+        <Markdown
+          children={props.content}
+          remarkPlugins={[remarkGfm, remarkBreaks]}
+          rehypePlugins={[rehypeRaw, rehypeSanitize]}
+        />
       </div>
     </div>
   );

@@ -87,7 +87,7 @@ class MessageController {
         const message =
           chatTarget && chatTarget.messages.length > 0
             ? await Message.findById(
-                chatTarget.messages[chatTarget.messages.length - 1]
+                chatTarget.messages[chatTarget.messages.length - 1],
               )
             : null;
         const context = message ? message.context : [];
@@ -145,11 +145,11 @@ class MessageController {
               "http://localhost:11434/api/generate",
               {
                 // model: "hf.co/Eve-31415/fitness-training",
-                model: "Llama3.1",
+                model: "llama3.1",
                 prompt: promptMessage.content,
                 context: promptMessage.context,
                 stream: false,
-              }
+              },
             );
             const { response, context } = promptResponse.data;
             respondMessage.content = response;
