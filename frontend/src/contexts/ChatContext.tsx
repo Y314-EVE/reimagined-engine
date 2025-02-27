@@ -7,9 +7,9 @@ import {
 } from "react";
 import axios from "axios";
 import { io, Socket } from "socket.io-client";
+import { tokenUpdate } from "../helpers";
 
 interface ChatContextType {
-  token: string | null;
   socket: Socket | null;
   selectedChat: string | null;
   messages: MessageProps[];
@@ -39,11 +39,6 @@ interface MessageProps {
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = (props: { children: ReactNode }) => {
-  const searchToken = document.cookie.split("; ").reduce((prev, curr) => {
-    const parts = curr.split("=");
-    return parts[0] === "access_token" ? parts[1] : prev;
-  }, "");
-  const token = searchToken === "" ? null : searchToken;
   const [socket, setSocket] = useState<Socket | null>(null);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageProps[]>([]);
@@ -52,13 +47,18 @@ export const ChatProvider = (props: { children: ReactNode }) => {
     setMessages((prev) => [...prev, msg]);
   };
   const getChatList = async () => {
+    await tokenUpdate();
+    const token = document.cookie.split("; ").reduce((prev, curr) => {
+      const parts = curr.split("=");
+      return parts[0] === "access_token" ? parts[1] : prev;
+    }, "");
     const getChatListResponse = await axios.get(
       "http://localhost:5000/api/chat/list-chats",
       {
         headers: {
           Authorization: token,
         },
-      }
+      },
     );
     setChatList(getChatListResponse.data.data);
   };
@@ -82,7 +82,6 @@ export const ChatProvider = (props: { children: ReactNode }) => {
   return (
     <ChatContext.Provider
       value={{
-        token,
         socket,
         selectedChat,
         messages,

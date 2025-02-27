@@ -3,7 +3,8 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 import User from "../models/User";
 import Verification from "../models/Verification";
-import { hashCompare, hashMaker, signToken } from "../helpers";
+import TokenPair from "../models/TokenPair";
+import { hashCompare, hashMaker, signToken, verifyToken } from "../helpers";
 
 const EMAIL = process.env.EMAIL || "";
 const EMAILPW = process.env.EMAILPW || "";
@@ -40,7 +41,6 @@ class AuthController {
   };
 
   // user registration
-  // TODO: email confirmation
   static registration = async (req: Request, res: Response) => {
     try {
       const { name, email, password } = req.body;
@@ -161,14 +161,19 @@ class AuthController {
       const { _id, name } = inUseEmail;
       // Stay logined in 30 days
       // TODO: use rotational refresh token
+      const newTokenPair = await TokenPair.create({
+        user: _id,
+        accessToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "15m")}`,
+        refreshToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "30d")}`,
+        expireAt: new Date(Date.now() + 30 * 864e5),
+      });
       const payload = {
         name: name,
         email: email,
-        token: `Bearer ${signToken(
-          { _id: _id.toString(), name: name },
-          "30d",
-        )}`,
+        accessToken: newTokenPair.accessToken,
+        refreshToken: newTokenPair.refreshToken,
       };
+      await newTokenPair.save();
       console.log(
         `User ${name} (${email}) login at ${new Date().toUTCString()}`,
       );
@@ -326,6 +331,52 @@ class AuthController {
         }
         console.log(`${email} is verified by ${verifiedAt}`);
         res.status(200).json({ code: 200, message: "Email verified." });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
+  // check access-refresh token pair
+  static updateTokenPair = async (req: Request, res: Response) => {
+    try {
+      const { refreshToken } = req.body;
+      if (typeof req.user !== "string") {
+        const { _id, name } = req.user;
+        const record = await TokenPair.findOne({
+          user: _id,
+          refreshToken: refreshToken,
+        }).exec();
+
+        if (
+          !record ||
+          record.expireAt < new Date(Date.now()) ||
+          record.invalidatedAt !== null
+        ) {
+          res.status(401).json({
+            code: 401,
+            message: "Token pair expired or used already.",
+          });
+        } else {
+          const newTokenPair = await TokenPair.create({
+            user: _id,
+            accessToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "15m")}`,
+            refreshToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "30d")}`,
+            expireAt: new Date(Date.now() + 30 * 864e5),
+          });
+          record.invalidatedAt = new Date(Date.now());
+          await record.save();
+          await newTokenPair.save();
+          res.status(200).json({
+            code: 200,
+            message: "Token pair verified.",
+            refreshToken: newTokenPair.refreshToken,
+            accessToken: newTokenPair.accessToken,
+          });
+        }
       }
     } catch (err) {
       console.log(err);

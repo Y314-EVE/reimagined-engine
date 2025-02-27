@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { FiPlus } from "react-icons/fi";
 
 import { useChat } from "../contexts";
+import { tokenUpdate } from "../helpers";
 
 interface ChatlistItemProps {
   _id: string;
@@ -11,15 +12,19 @@ interface ChatlistItemProps {
 }
 
 const Chatlist = () => {
-  const { token, setSelectedChat, chatList, getChatList, setChatList } =
-    useChat();
+  const { setSelectedChat, chatList, getChatList, setChatList } = useChat();
   // const [chatList, setChatList] = useState(Array<ChatlistItemProps>());
 
   const createChatRequest = async () => {
+    await tokenUpdate();
+    const token = document.cookie.split("; ").reduce((prev, curr) => {
+      const parts = curr.split("=");
+      return parts[0] === "access_token" ? parts[1] : prev;
+    }, "");
     const createChatResponse = await axios.post(
       "http://localhost:5000/api/chat/create",
       {},
-      { headers: { Authorization: token } }
+      { headers: { Authorization: token } },
     );
     if (createChatResponse.data.code === 201) {
       setSelectedChat(createChatResponse.data.payload._id);
@@ -29,7 +34,7 @@ const Chatlist = () => {
           headers: {
             Authorization: token,
           },
-        }
+        },
       );
       setChatList(chatListResponse.data.data);
     }

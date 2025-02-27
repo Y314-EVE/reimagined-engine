@@ -3,7 +3,7 @@ import axios from "axios";
 import { useChat } from "../contexts";
 import { Message } from "../components";
 import { FiEdit2, FiDelete, FiCheck, FiX } from "react-icons/fi";
-import {} from "../components/Chatlist";
+import { tokenUpdate } from "../helpers";
 
 interface chatData {
   _id: string;
@@ -46,7 +46,6 @@ const ChatContent = () => {
   const [waitingRespond, setWaitingRespond] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const {
-    token,
     socket,
     messages,
     setMessages,
@@ -60,12 +59,18 @@ const ChatContent = () => {
     if (!selectedChat) return;
 
     const chatRequest = async () => {
+      // test update token
+      await tokenUpdate();
+      const token = document.cookie.split("; ").reduce((prev, curr) => {
+        const parts = curr.split("=");
+        return parts[0] === "access_token" ? parts[1] : prev;
+      }, "");
       const chatResponse = await axios.post(
         "http://localhost:5000/api/chat/get-chat",
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        }
+        },
       );
 
       setChat({
@@ -99,10 +104,15 @@ const ChatContent = () => {
       if (messageInput.trim() === "") {
         return;
       }
+      await tokenUpdate();
+      const token = document.cookie.split("; ").reduce((prev, curr) => {
+        const parts = curr.split("=");
+        return parts[0] === "access_token" ? parts[1] : prev;
+      }, "");
       const createMessageResponse = await axios.post(
         "http://localhost:5000/api/message/create",
         { chat: selectedChat, content: messageInput },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
       setMessageInput("");
       setWaitingRespond(true);
@@ -115,7 +125,7 @@ const ChatContent = () => {
           prompt: getResponse.payload._id,
           respond: getResponse.respond,
         },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
     }
     return (
@@ -165,10 +175,16 @@ const ChatContent = () => {
       }
     });
     const handleSaveTitle = async () => {
-      const changeTitleResponse = await axios.put(
+      await tokenUpdate();
+      const token = document.cookie.split("; ").reduce((prev, curr) => {
+        const parts = curr.split("=");
+        return parts[0] === "access_token" ? parts[1] : prev;
+      }, "");
+      // const changeTitleResponse =
+      await axios.put(
         "http://localhost:5000/api/chat/change-title",
         { _id: chat._id, title: chatTitle },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
       getChatList();
       const chatResponse = await axios.post(
@@ -176,7 +192,7 @@ const ChatContent = () => {
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        }
+        },
       );
 
       setChat({
@@ -187,10 +203,16 @@ const ChatContent = () => {
     };
     const handleDeleteChat = async () => {
       if (confirm("Are you sure to delete the chat?")) {
-        const deleteChatResponse = await axios.put(
+        await tokenUpdate();
+        const token = document.cookie.split("; ").reduce((prev, curr) => {
+          const parts = curr.split("=");
+          return parts[0] === "access_token" ? parts[1] : prev;
+        }, "");
+        // const deleteChatResponse =
+        await axios.put(
           "http://localhost:5000/api/chat/delete",
           { _id: chat._id },
-          { headers: { Authorization: token } }
+          { headers: { Authorization: token } },
         );
         setSelectedChat("");
         getChatList();

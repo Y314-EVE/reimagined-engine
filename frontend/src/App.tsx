@@ -3,6 +3,8 @@ import "./App.css";
 import { Login, Chat } from "./containers";
 
 function App() {
+  // Todo
+  // Add authentication logic
   const hasToken = document.cookie.includes("access_token");
   return (
     <div

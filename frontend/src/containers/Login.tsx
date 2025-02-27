@@ -17,13 +17,18 @@ const Login = () => {
         {
           email: email,
           password: password,
-        }
+        },
       );
       if (loginResponse.data.code === 200) {
         document.cookie = `access_token=${
-          loginResponse.data.payload.token
+          loginResponse.data.payload.accessToken
         }; SameSite=Strict; expires=${new Date(
-          Date.now() + 30 * 864e5
+          Date.now() + 15 * 60e3,
+        ).toUTCString()}; path=/`;
+        document.cookie = `refresh_token=${
+          loginResponse.data.payload.refreshToken
+        }; SameSite=Strict; expires=${new Date(
+          Date.now() + 30 * 864e5,
         ).toUTCString()}; path=/`;
         window.location.reload();
       }
@@ -40,7 +45,7 @@ const Login = () => {
     name: string,
     email: string,
     password: string,
-    confirm_password: string
+    confirm_password: string,
   ) => {
     try {
       const registerResponse = await axios.post(
@@ -50,7 +55,7 @@ const Login = () => {
           email: email,
           password: password,
           confirm_password: confirm_password,
-        }
+        },
       );
       if (registerResponse.data.code === 201) {
         alert("Sucessfully registered.");
