@@ -3,6 +3,15 @@ import axios from "axios";
 import Message from "../models/Message";
 import Chat from "../models/Chat";
 import { io, socket } from "../server";
+import { ObjectId } from "mongoose";
+import { options } from "joi";
+
+interface MessageProps {
+  _id: ObjectId;
+  bot: boolean;
+  content: string;
+  createdAt: string;
+}
 
 class MessageController {
   static listMessages = async (req: Request, res: Response) => {
@@ -87,7 +96,7 @@ class MessageController {
         const message =
           chatTarget && chatTarget.messages.length > 0
             ? await Message.findById(
-                chatTarget.messages[chatTarget.messages.length - 1],
+                chatTarget.messages[chatTarget.messages.length - 1]
               )
             : null;
         const context = message ? message.context : [];
@@ -136,24 +145,64 @@ class MessageController {
         const { chat, prompt, respond } = req.body;
         const promptMessage = await Message.findById(prompt).exec();
         const respondMessage = await Message.findById(respond).exec();
+        const historyMessages = await Chat.findById(chat)
+          .populate<{ messages: Array<MessageProps> }>("messages")
+          .exec();
+        const history: Array<Object> = [
+          {
+            role: "system",
+            content:
+              "You are a friendly fitness coach that gives personalised fitness advice, answer in details, give instructions on the exercises. Create training schedules, or training plans, is priority and you should do it whenever possible even if not explicitly asked to do so. Ask for body metrics that can help you personalise their training, unless rejected. You can use markdown language to structure the output. If there is any nutrition advice that can help, please include as well. Jokes when the user asks things not related to fitness training.",
+          },
+        ];
+        if (historyMessages) {
+          for (var i = 0; i < historyMessages.messages.length; i++) {
+            if (historyMessages.messages[i]._id.toString() === respond) {
+              break;
+            }
+            if (historyMessages.messages[i].bot) {
+              history.push({
+                role: "assistant",
+                content: historyMessages.messages[i].content,
+              });
+            } else {
+              history.push({
+                role: "user",
+                content: historyMessages.messages[i].content,
+              });
+            }
+          }
+        }
         if (typeof _id === "string" && promptMessage && respondMessage) {
           if (
             promptMessage.user?._id.toString() === _id &&
             respondMessage.user?._id.toString() === _id
           ) {
+            // const promptResponse = await axios.post(
+            //   "http://localhost:11434/api/generate",
+            //   {
+            //     model: "hf.co/Eve-31415/fitness-training",
+            //     // model: "llama3.1",
+            //     prompt: promptMessage.content,
+            //     context: promptMessage.context,
+            //     stream: false,
+            //   }
+            // );
             const promptResponse = await axios.post(
-              "http://localhost:11434/api/generate",
+              "http://localhost:11434/api/chat",
               {
-                // model: "hf.co/Eve-31415/fitness-training",
-                model: "llama3.1",
-                prompt: promptMessage.content,
-                context: promptMessage.context,
+                model: "hf.co/Eve-31415/fitness-training",
+                // model: "llama3.1",
+                messages: history,
                 stream: false,
-              },
+                options: {
+                  num_ctx: 32000,
+                  num_predict: -1,
+                },
+              }
             );
-            const { response, context } = promptResponse.data;
-            respondMessage.content = response;
-            respondMessage.context = context;
+            const { message } = promptResponse.data;
+            respondMessage.content = message.content;
             await respondMessage.save();
             io.to(chat.toString()).emit("receive message", respondMessage);
             res.status(200).json({

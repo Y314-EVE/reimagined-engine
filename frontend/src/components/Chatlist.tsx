@@ -24,7 +24,7 @@ const Chatlist = () => {
     const createChatResponse = await axios.post(
       "http://localhost:5000/api/chat/create",
       {},
-      { headers: { Authorization: token } },
+      { headers: { Authorization: token } }
     );
     if (createChatResponse.data.code === 201) {
       setSelectedChat(createChatResponse.data.payload._id);
@@ -34,13 +34,14 @@ const Chatlist = () => {
           headers: {
             Authorization: token,
           },
-        },
+        }
       );
       setChatList(chatListResponse.data.data);
     }
   };
 
   const ChatlistItem = (chat: ChatlistItemProps) => {
+    const localtime = new Date(chat.createdAt).toLocaleString();
     return (
       <div
         className={`text-left px-4 border-b-2 border-gray-200 cursor-pointer hover:bg-gray-200`}
@@ -48,8 +49,8 @@ const Chatlist = () => {
           setSelectedChat(chat._id);
         }}
       >
-        <p className="text-base">{chat.title}</p>
-        <p className="text-sm text-gray-400">{chat.createdAt}</p>
+        <p className="text-base mix-blend-difference">{chat.title}</p>
+        <p className="text-sm text-gray-400">{localtime}</p>
       </div>
     );
   };
@@ -78,7 +79,7 @@ const Chatlist = () => {
   }, []);
 
   return (
-    <div className="w-1/6 flex flex-col pl-4">
+    <div className="sm:-w-2/6 md:w-1/6 flex flex-col px-4 h-full overflow-scroll">
       <button
         className="bg-green-200 text-gray-600 mb-2"
         onClick={() => {

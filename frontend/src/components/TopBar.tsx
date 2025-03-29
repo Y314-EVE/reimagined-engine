@@ -7,10 +7,15 @@ const TopBar = () => {
         type="button"
         onClick={() => {
           // axios.post("http://localhost:5000/api/auth/logout");
-          document.cookie = `access_token=none; SameSite=Strict; expires=${new Date(0).toUTCString()}; path=/`;
+          document.cookie = `access_token=none; SameSite=Strict; expires=${new Date(
+            0
+          ).toUTCString()}; path=/`;
+          document.cookie = `refresh_token=none; SameSite=Strict; expires=${new Date(
+            0
+          ).toUTCString()}; path=/`;
           window.location.reload();
         }}
-        className="bg-red-300"
+        className="bg-red-300 mix-blend-difference"
       >
         Logout
       </button>

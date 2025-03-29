@@ -17,18 +17,18 @@ const Login = () => {
         {
           email: email,
           password: password,
-        },
+        }
       );
       if (loginResponse.data.code === 200) {
         document.cookie = `access_token=${
           loginResponse.data.payload.accessToken
         }; SameSite=Strict; expires=${new Date(
-          Date.now() + 15 * 60e3,
+          Date.now() + 15 * 60e3
         ).toUTCString()}; path=/`;
         document.cookie = `refresh_token=${
           loginResponse.data.payload.refreshToken
         }; SameSite=Strict; expires=${new Date(
-          Date.now() + 30 * 864e5,
+          Date.now() + 30 * 864e5
         ).toUTCString()}; path=/`;
         window.location.reload();
       }
@@ -45,7 +45,7 @@ const Login = () => {
     name: string,
     email: string,
     password: string,
-    confirm_password: string,
+    confirm_password: string
   ) => {
     try {
       const registerResponse = await axios.post(
@@ -55,7 +55,7 @@ const Login = () => {
           email: email,
           password: password,
           confirm_password: confirm_password,
-        },
+        }
       );
       if (registerResponse.data.code === 201) {
         alert("Sucessfully registered.");
@@ -67,10 +67,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col p-6 border-2 border-gray rounded-lg">
+    <div className="flex flex-col p-6 border-2 border-gray rounded-lg mix-blend-difference">
       {signUp ? (
         <div className="flex flex-col">
-          <p className="p-2">Name</p>
+          <p className="p-2 text-gray-400">Name</p>
           <input
             type="input"
             value={userName}
@@ -84,7 +84,7 @@ const Login = () => {
         ""
       )}
 
-      <p className="p-2">Email</p>
+      <p className="p-2 text-gray-400">Email</p>
       <input
         type="email"
         value={userEmail}
@@ -94,7 +94,7 @@ const Login = () => {
         className="w-48 border-2 rounded"
       />
 
-      <p className="p-2">Password</p>
+      <p className="p-2 text-gray-400">Password</p>
       <input
         type="password"
         value={password}
@@ -118,7 +118,7 @@ const Login = () => {
 
       {signUp ? (
         <div className="flex flex-col">
-          <p className="p-2">Confirm password</p>
+          <p className="p-2 text-gray-400">Confirm password</p>
           <input
             type="password"
             value={confirmPassword}
@@ -140,7 +140,7 @@ const Login = () => {
 
       <button
         type="button"
-        className="mt-2 py-1 border-2 rounded border-gray-100 bg-sky-100 cursor-pointer"
+        className="mt-2 py-1 border-2 rounded border-gray-100 bg-sky-500 cursor-pointer"
         onClick={(e) => {
           e.preventDefault();
           if (signUp) {

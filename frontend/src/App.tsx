@@ -5,7 +5,7 @@ import { Login, Chat } from "./containers";
 function App() {
   // Todo
   // Add authentication logic
-  const hasToken = document.cookie.includes("access_token");
+  const hasToken = document.cookie.includes("refresh_token");
   return (
     <div
       className={`h-screen flex flex-col ${

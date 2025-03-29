@@ -70,7 +70,7 @@ const ChatContent = () => {
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        },
+        }
       );
 
       setChat({
@@ -112,7 +112,7 @@ const ChatContent = () => {
       const createMessageResponse = await axios.post(
         "http://localhost:5000/api/message/create",
         { chat: selectedChat, content: messageInput },
-        { headers: { Authorization: token } },
+        { headers: { Authorization: token } }
       );
       setMessageInput("");
       setWaitingRespond(true);
@@ -125,7 +125,7 @@ const ChatContent = () => {
           prompt: getResponse.payload._id,
           respond: getResponse.respond,
         },
-        { headers: { Authorization: token } },
+        { headers: { Authorization: token } }
       );
     }
     return (
@@ -184,7 +184,7 @@ const ChatContent = () => {
       await axios.put(
         "http://localhost:5000/api/chat/change-title",
         { _id: chat._id, title: chatTitle },
-        { headers: { Authorization: token } },
+        { headers: { Authorization: token } }
       );
       getChatList();
       const chatResponse = await axios.post(
@@ -192,7 +192,7 @@ const ChatContent = () => {
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        },
+        }
       );
 
       setChat({
@@ -212,7 +212,7 @@ const ChatContent = () => {
         await axios.put(
           "http://localhost:5000/api/chat/delete",
           { _id: chat._id },
-          { headers: { Authorization: token } },
+          { headers: { Authorization: token } }
         );
         setSelectedChat("");
         getChatList();
@@ -220,7 +220,7 @@ const ChatContent = () => {
     };
 
     return (
-      <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300">
+      <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300 mix-blend-difference">
         <div className="">
           {isEditTitle ? (
             <div className="flex flex-row flex-1 items-center justify-around">
