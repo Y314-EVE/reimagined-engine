@@ -220,7 +220,7 @@ const ChatContent = () => {
     };
 
     return (
-      <div className="w-full p-2 pl-4 rounded-t-xl bg-green-300 mix-blend-difference">
+      <div className="w-full p-2 pl-4 rounded-t-xl bg-green-400">
         <div className="">
           {isEditTitle ? (
             <div className="flex flex-row flex-1 items-center justify-around">

@@ -49,7 +49,9 @@ const Chatlist = () => {
           setSelectedChat(chat._id);
         }}
       >
-        <p className="text-base mix-blend-difference">{chat.title}</p>
+        <p className="text-base mix-blend-difference text-gray-100">
+          {chat.title}
+        </p>
         <p className="text-sm text-gray-400">{localtime}</p>
       </div>
     );

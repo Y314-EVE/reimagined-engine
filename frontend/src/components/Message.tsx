@@ -24,8 +24,8 @@ const Message = (props: MessageProps) => {
     >
       <div
         className={`${
-          props.isBot ? "bg-blue-600 text-white" : "bg-green-600"
-        } w-auto max-w-5xl p-2 border-2 border-sky-400 rounded-lg`}
+          props.isBot ? "bg-blue-600" : "bg-green-600"
+        } w-auto max-w-5xl p-2 border-2 text-white border-sky-400 rounded-lg`}
       >
         <Markdown
           children={processedContent}
