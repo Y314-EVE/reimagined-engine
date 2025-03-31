@@ -62,7 +62,7 @@ class AuthController {
       console.log(
         `New registration: ${newUser.name} (${
           newUser.email
-        }) at ${new Date().toUTCString()}`,
+        }) at ${new Date().toUTCString()}`
       );
 
       // send verification email
@@ -82,23 +82,17 @@ class AuthController {
         from: SENDER,
         to: email,
         subject: "Fitness Coach LLM email verification",
-        html:
-          "<p>Please click on the following link to verify your email address:</p>" +
-          '<a href="http://localhost:5000/api/auth/verify-email/' +
-          token +
-          "/" +
-          email +
-          '">http://localhost:5000/api/auth/verify-email/' +
-          token +
-          "/" +
-          email +
-          "</a>",
+        html: `
+        <p>Thank you for registering with Fitness Coach LLM!</p>
+        <br/>
+        <p>Please click on the following link to verify your email address:</p>
+        <a href="http://localhost:5000/api/auth/verify-email/${token}/${email}>http://localhost:5000/api/auth/verify-email/${token}/${email}</a>`,
       };
 
       const newVerification = await new Verification({
         token: token,
         email: email,
-        expireAt: new Date(Date.now() + 180000),
+        expireAt: new Date(Date.now() + 6048e5),
       }).save();
 
       transporter.sendMail(mailOptions, (err, info) => {
@@ -159,7 +153,7 @@ class AuthController {
       const mailOptions = {
         from: SENDER,
         to: email,
-        subject: "Fitness Coach LLM email verification",
+        subject: "Fitness Coach LLM password reset",
         html: `
           <p>Thank you for registering with Fitness Coach LLM!</p>
           <br/>
@@ -171,7 +165,7 @@ class AuthController {
       const newVerification = await new Verification({
         token: token,
         email: email,
-        expireAt: new Date(Date.now() + 300000),
+        expireAt: new Date(Date.now() + 900000),
       }).save();
 
       transporter.sendMail(mailOptions, (err, info) => {
@@ -216,7 +210,7 @@ class AuthController {
       }
       const isCorrectPassword = await hashCompare(
         inUseEmail.password,
-        password,
+        password
       );
       if (!isCorrectPassword) {
         return res.status(401).json({
@@ -229,8 +223,14 @@ class AuthController {
       // TODO: use rotational refresh token
       const newTokenPair = await TokenPair.create({
         user: _id,
-        accessToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "15m")}`,
-        refreshToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "30d")}`,
+        accessToken: `Bearer ${signToken(
+          { _id: _id.toString(), name: name },
+          "15m"
+        )}`,
+        refreshToken: `Bearer ${signToken(
+          { _id: _id.toString(), name: name },
+          "30d"
+        )}`,
         expireAt: new Date(Date.now() + 30 * 864e5),
       });
       const payload = {
@@ -241,7 +241,7 @@ class AuthController {
       };
       await newTokenPair.save();
       console.log(
-        `User ${name} (${email}) login at ${new Date().toUTCString()}`,
+        `User ${name} (${email}) login at ${new Date().toUTCString()}`
       );
       res.status(200).json({
         code: 200,
@@ -440,8 +440,14 @@ class AuthController {
         } else {
           const newTokenPair = await TokenPair.create({
             user: _id,
-            accessToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "15m")}`,
-            refreshToken: `Bearer ${signToken({ _id: _id.toString(), name: name }, "30d")}`,
+            accessToken: `Bearer ${signToken(
+              { _id: _id.toString(), name: name },
+              "15m"
+            )}`,
+            refreshToken: `Bearer ${signToken(
+              { _id: _id.toString(), name: name },
+              "30d"
+            )}`,
             expireAt: new Date(Date.now() + 30 * 864e5),
           });
           record.invalidatedAt = new Date(Date.now());
