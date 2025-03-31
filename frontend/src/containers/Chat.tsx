@@ -5,7 +5,7 @@ import { ChatProvider } from "../contexts";
 const Chat = () => {
   return (
     <ChatProvider>
-      <div className="h-full pb-24">
+      <div className="h-screen pb-24">
         <TopBar />
         <div className="flex flex-row pt-4 h-full">
           <Chatlist />

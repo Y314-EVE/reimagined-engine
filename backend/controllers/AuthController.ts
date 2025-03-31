@@ -8,6 +8,7 @@ import { hashCompare, hashMaker, signToken, verifyToken } from "../helpers";
 
 const EMAIL = process.env.EMAIL || "";
 const EMAILPW = process.env.EMAILPW || "";
+const SENDER = process.env.SENDER || EMAIL || "";
 
 class AuthController {
   // FOR TESTING ONLY! DELETE BEFORE DEPLOYMENT
@@ -78,7 +79,7 @@ class AuthController {
       const token = crypto.randomBytes(32).toString("hex");
 
       const mailOptions = {
-        from: EMAIL,
+        from: SENDER,
         to: email,
         subject: "Fitness Coach LLM email verification",
         html:
@@ -132,6 +133,71 @@ class AuthController {
       });
     }
   };
+
+  // send reset email (forgot password)
+  static sendResetEmail = async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      const isUsedEmail = await User.findOne({ email }).lean().exec();
+      if (!isUsedEmail) {
+        return;
+      }
+
+      // send verification email
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        auth: {
+          user: EMAIL,
+          pass: EMAILPW,
+        },
+      });
+
+      const token = crypto.randomBytes(32).toString("hex");
+
+      const mailOptions = {
+        from: SENDER,
+        to: email,
+        subject: "Fitness Coach LLM email verification",
+        html: `
+          <p>Thank you for registering with Fitness Coach LLM!</p>
+          <br/>
+          <p>Please click on the following link to verify your email address:</p>
+          <a href="http://localhost:5173/reset-password/${token}/${email}">http://localhost:5173/reset-password/${token}/${email}</a>
+        `,
+      };
+
+      const newVerification = await new Verification({
+        token: token,
+        email: email,
+        expireAt: new Date(Date.now() + 300000),
+      }).save();
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.log(err.message);
+          res.status(500).json({
+            code: 500,
+            message: "Internal server error. Email send failed.",
+          });
+        } else {
+          console.log("Email sent: " + info.response);
+          res.status(200).json({
+            code: 200,
+            message: "Verification email sent successfully.",
+          });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
+
   // user login
   static login = async (req: Request, res: Response) => {
     try {
@@ -193,7 +259,18 @@ class AuthController {
   // user logout
   static logout = async (req: Request, res: Response) => {
     try {
-      res.clearCookie("access_token");
+      const { accessToken, refreshToken } = req.body;
+      const tokenPair = await TokenPair.findOne({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        invalidatedAt: { $eq: null },
+      }).exec();
+      if (tokenPair) {
+        tokenPair.invalidatedAt = new Date(Date.now());
+        await tokenPair.save();
+      }
+      // res.clearCookie("access_token");
+      // res.clearCookie("refresh_token");
       res.status(200).json({
         code: 200,
         message: "Logout successful.",
