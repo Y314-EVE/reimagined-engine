@@ -41,6 +41,38 @@ class AuthController {
     }
   };
 
+  // user info
+  static userInfo = async (req: Request, res: Response) => {
+    try {
+      if (typeof req.user !== "string") {
+        const { _id } = req.user;
+        const user = await User.findById(_id).exec();
+        if (user) {
+          const { name, email } = user;
+          res.status(200).json({
+            code: 200,
+            message: "User info",
+            payload: {
+              name: name,
+              email: email,
+            },
+          });
+        }
+      } else {
+        res.status(500).json({
+          code: 500,
+          message: "Internal server error.",
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
+
   // user registration
   static registration = async (req: Request, res: Response) => {
     try {
@@ -191,7 +223,43 @@ class AuthController {
       });
     }
   };
+  // reset password
+  static resetPassword = async (req: Request, res: Response) => {
+    try {
+      const { token, email, password, confirmPassword } = req.body;
 
+      const user = await User.findOne({ email: email }).exec();
+      if (!user) {
+        return res.status(404).json({ code: 404, message: "Email not found." });
+      }
+      const record = await Verification.findOne({
+        token: token,
+        email: email,
+      }).exec();
+
+      if (!record || record.expireAt < new Date(Date.now())) {
+        res
+          .status(401)
+          .json({ code: 401, message: "Verification link expired." });
+      } else {
+        if (user && user.verifiedAt !== null) {
+          if (password === confirmPassword) {
+            const hashedPw = await hashMaker(password);
+            user.password = hashedPw;
+          }
+          await user.save();
+        }
+        console.log(`${email} password reset by ${new Date().toUTCString()}`);
+        res.status(200).json({ code: 200, message: "Password reset." });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
   // user login
   static login = async (req: Request, res: Response) => {
     try {
