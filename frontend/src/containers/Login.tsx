@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 const Login = () => {
   const [userEmail, setUserEmail] = useState("");
@@ -10,6 +11,8 @@ const Login = () => {
   const [loginFailed, setLoginFailed] = useState(false);
   const [loginFailedMessage, setLoginFailedMessage] = useState("");
 
+  const navigate = useNavigate();
+
   const loginRequest = async (email: string, password: string) => {
     try {
       const loginResponse = await axios.post(
@@ -17,18 +20,18 @@ const Login = () => {
         {
           email: email,
           password: password,
-        }
+        },
       );
       if (loginResponse.data.code === 200) {
         document.cookie = `access_token=${
           loginResponse.data.payload.accessToken
         }; SameSite=Strict; expires=${new Date(
-          Date.now() + 15 * 60e3
+          Date.now() + 15 * 60e3,
         ).toUTCString()}; path=/`;
         document.cookie = `refresh_token=${
           loginResponse.data.payload.refreshToken
         }; SameSite=Strict; expires=${new Date(
-          Date.now() + 30 * 864e5
+          Date.now() + 30 * 864e5,
         ).toUTCString()}; path=/`;
         window.location.reload();
       }
@@ -45,7 +48,7 @@ const Login = () => {
     name: string,
     email: string,
     password: string,
-    confirm_password: string
+    confirm_password: string,
   ) => {
     try {
       const registerResponse = await axios.post(
@@ -55,7 +58,7 @@ const Login = () => {
           email: email,
           password: password,
           confirm_password: confirm_password,
-        }
+        },
       );
       if (registerResponse.data.code === 201) {
         alert("Sucessfully registered.");
@@ -67,99 +70,112 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col p-6 border-2 border-gray rounded-lg mix-blend-difference">
-      {signUp ? (
-        <div className="flex flex-col">
-          <p className="p-2 text-gray-400">Name</p>
-          <input
-            type="input"
-            value={userName}
-            onChange={(event) => {
-              setUserName(event.target.value);
-            }}
-            className="w-48 border-2 rounded"
-          />
-        </div>
-      ) : (
-        ""
-      )}
+    <div className="h-screen justify-center items-center flex flex-col">
+      <div className="flex flex-col p-12 my-auto border-2 border-gray rounded-lg mix-blend-difference">
+        {signUp ? (
+          <div className="flex flex-col">
+            <p className="p-2 text-gray-400">Name</p>
+            <input
+              type="input"
+              value={userName}
+              onChange={(event) => {
+                setUserName(event.target.value);
+              }}
+              className="w-48 border-2 rounded"
+            />
+          </div>
+        ) : (
+          ""
+        )}
 
-      <p className="p-2 text-gray-400">Email</p>
-      <input
-        type="email"
-        value={userEmail}
-        onChange={(event) => {
-          setUserEmail(event.target.value);
-        }}
-        className="w-48 border-2 rounded"
-      />
+        <p className="p-2 text-gray-400">Email</p>
+        <input
+          type="email"
+          value={userEmail}
+          onChange={(event) => {
+            setUserEmail(event.target.value);
+          }}
+          className="w-48 border-2 rounded"
+        />
 
-      <p className="p-2 text-gray-400">Password</p>
-      <input
-        type="password"
-        value={password}
-        onChange={(event) => {
-          setPassword(event.target.value);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !signUp) {
+        <p className="p-2 text-gray-400">Password</p>
+        <input
+          type="password"
+          value={password}
+          onChange={(event) => {
+            setPassword(event.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !signUp) {
+              e.preventDefault();
+              loginRequest(userEmail, password);
+            }
+          }}
+          className="w-48 border-2 rounded"
+        />
+
+        {loginFailed ? (
+          <p className="flex text-red-600 p-1">{loginFailedMessage}</p>
+        ) : (
+          ""
+        )}
+
+        {signUp ? (
+          <div className="flex flex-col">
+            <p className="p-2 text-gray-400">Confirm password</p>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(event) => {
+                setConfirmPassword(event.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && signUp) {
+                  e.preventDefault();
+                  registerRequest(
+                    userName,
+                    userEmail,
+                    password,
+                    confirmPassword,
+                  );
+                }
+              }}
+              className="w-48 border-2 rounded"
+            />
+          </div>
+        ) : (
+          ""
+        )}
+
+        <button
+          type="button"
+          className="mt-2 py-1 border-2 rounded border-gray-100 bg-sky-500 cursor-pointer"
+          onClick={(e) => {
             e.preventDefault();
-            loginRequest(userEmail, password);
-          }
-        }}
-        className="w-48 border-2 rounded"
-      />
+            if (signUp) {
+              registerRequest(userName, userEmail, password, confirmPassword);
+            } else {
+              loginRequest(userEmail, password);
+            }
+          }}
+        >
+          {signUp ? "Sign up" : "Login"}
+        </button>
 
-      {loginFailed ? (
-        <p className="flex text-red-600 p-1">{loginFailedMessage}</p>
-      ) : (
-        ""
-      )}
+        <p className="self-center mt-2">or</p>
 
-      {signUp ? (
-        <div className="flex flex-col">
-          <p className="p-2 text-gray-400">Confirm password</p>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(event) => {
-              setConfirmPassword(event.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && signUp) {
-                e.preventDefault();
-                registerRequest(userName, userEmail, password, confirmPassword);
-              }
-            }}
-            className="w-48 border-2 rounded"
-          />
-        </div>
-      ) : (
-        ""
-      )}
-
-      <button
-        type="button"
-        className="mt-2 py-1 border-2 rounded border-gray-100 bg-sky-500 cursor-pointer"
-        onClick={(e) => {
-          e.preventDefault();
-          if (signUp) {
-            registerRequest(userName, userEmail, password, confirmPassword);
-          } else {
-            loginRequest(userEmail, password);
-          }
-        }}
-      >
-        {signUp ? "Sign up" : "Login"}
-      </button>
-
-      <p className="self-center mt-2">or</p>
-
+        <p
+          className="self-center underline text-blue-500 cursor-pointer"
+          onClick={() => setSignUp((prev) => !prev)}
+        >
+          {!signUp ? "Sign up" : "Login"}
+        </p>
+      </div>
       <p
-        className="self-center underline text-blue-500 cursor-pointer"
-        onClick={() => setSignUp((prev) => !prev)}
+        className="self-end p-4 underline text-blue-500 cursor-pointer"
+        onClick={() => navigate("/forgot-password")}
       >
-        {!signUp ? "Sign up" : "Login"}
+        Forgot password?
       </p>
     </div>
   );
