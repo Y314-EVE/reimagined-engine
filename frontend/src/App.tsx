@@ -1,7 +1,13 @@
 import { Routes, Route, Navigate } from "react-router";
 import "./App.css";
 
-import { Login, Chat, ForgotPassword, ResetPassword } from "./containers";
+import {
+  Login,
+  Chat,
+  ForgotPassword,
+  ResetPassword,
+  Profile,
+} from "./containers";
 
 function App() {
   const isLoggedIn = () => {
@@ -28,6 +34,10 @@ function App() {
         element={
           isLoggedIn() ? <Navigate replace to="/chat" /> : <ResetPassword />
         }
+      />
+      <Route
+        path="/profile"
+        element={isLoggedIn() ? <Profile /> : <Navigate replace to="/" />}
       />
     </Routes>
   );

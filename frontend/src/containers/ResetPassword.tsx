@@ -18,7 +18,7 @@ const ResetPassword = () => {
   const resetRequest = async (
     email: string,
     password: string,
-    confirmPassword: string
+    confirmPassword: string,
   ) => {
     try {
       const resetResponse = await axios.put(
@@ -28,13 +28,21 @@ const ResetPassword = () => {
           email: email,
           password: password,
           confirmPassword: confirmPassword,
-        }
+        },
       );
       if (resetResponse.data.code === 200) {
         setResetSuccess(true);
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handlePasswordReset = () => {
+    if (password === confirmPassword) {
+      resetRequest(email!, password, confirmPassword);
+    } else {
+      alert("Passwords do not match");
     }
   };
 
@@ -58,7 +66,7 @@ const ResetPassword = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  resetRequest(email!, password, confirmPassword);
+                  handlePasswordReset();
                 }
               }}
               className="w-48 border-2 rounded"
@@ -73,9 +81,7 @@ const ResetPassword = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  password === confirmPassword
-                    ? resetRequest(email!, password, confirmPassword)
-                    : alert("Passwords do not match");
+                  handlePasswordReset();
                 }
               }}
               className="w-48 border-2 rounded"
@@ -85,10 +91,7 @@ const ResetPassword = () => {
               className="mt-2 py-1 border-2 rounded border-gray-100 bg-sky-500 cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
-                password === confirmPassword
-                  ? setResetSuccess(true)
-                  : alert("Passwords do not match");
-                resetRequest(email!, password, confirmPassword);
+                handlePasswordReset();
               }}
             >
               Reset Password

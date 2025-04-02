@@ -11,6 +11,7 @@ router.post("/register", registerValidation, AuthController.registration);
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
 router.put("/change-password", auth, AuthController.changePassword);
+router.put("/update-name", auth, AuthController.updateName);
 router.post("/send-verification-email", AuthController.sendEmailVerification);
 router.post("/send-reset-email", AuthController.sendResetEmail);
 router.put("/reset-password", AuthController.resetPassword);

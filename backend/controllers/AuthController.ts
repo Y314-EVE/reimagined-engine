@@ -94,7 +94,7 @@ class AuthController {
       console.log(
         `New registration: ${newUser.name} (${
           newUser.email
-        }) at ${new Date().toUTCString()}`
+        }) at ${new Date().toUTCString()}`,
       );
 
       // send verification email
@@ -278,7 +278,7 @@ class AuthController {
       }
       const isCorrectPassword = await hashCompare(
         inUseEmail.password,
-        password
+        password,
       );
       if (!isCorrectPassword) {
         return res.status(401).json({
@@ -293,11 +293,11 @@ class AuthController {
         user: _id,
         accessToken: `Bearer ${signToken(
           { _id: _id.toString(), name: name },
-          "15m"
+          "15m",
         )}`,
         refreshToken: `Bearer ${signToken(
           { _id: _id.toString(), name: name },
-          "30d"
+          "30d",
         )}`,
         expireAt: new Date(Date.now() + 30 * 864e5),
       });
@@ -309,7 +309,7 @@ class AuthController {
       };
       await newTokenPair.save();
       console.log(
-        `User ${name} (${email}) login at ${new Date().toUTCString()}`
+        `User ${name} (${email}) login at ${new Date().toUTCString()}`,
       );
       res.status(200).json({
         code: 200,
@@ -355,19 +355,56 @@ class AuthController {
   // auth needed
   static changePassword = async (req: Request, res: Response) => {
     try {
-      const { password, confirm_password } = req.body;
+      const { password, newPassword, confirmPassword } = req.body;
       if (typeof req.user !== "string") {
         const { _id } = req.user;
-        if (password !== confirm_password) {
+        if (newPassword !== confirmPassword) {
           return res.status(409).json({
             code: 409,
             message: "Confirm password does not match.",
           });
         }
-        const user = await User.findById(_id);
-        const hashedPw = await hashMaker(password);
+        const user = await User.findById(_id).exec();
+        const hashedNewPw = await hashMaker(newPassword);
+
         if (user) {
-          user.password = hashedPw;
+          const correctPassword = await hashCompare(user!.password, password);
+          if (!correctPassword) {
+            return res.status(401).json({
+              code: 401,
+              message: "Incorrect password.",
+            });
+          }
+          user.password = hashedNewPw;
+          await user.save();
+          res.status(200).json({
+            code: 200,
+            message: "Password changed.",
+          });
+        }
+      } else {
+        res.status(500).json({
+          code: 500,
+          message: "Internal server error.",
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  };
+  // user change name
+  static updateName = async (req: Request, res: Response) => {
+    try {
+      const { name } = req.body;
+      if (typeof req.user !== "string") {
+        const { _id } = req.user;
+        const user = await User.findById(_id);
+        if (user) {
+          user.name = name;
           await user.save();
           res.status(200).json({
             code: 200,
@@ -510,11 +547,11 @@ class AuthController {
             user: _id,
             accessToken: `Bearer ${signToken(
               { _id: _id.toString(), name: name },
-              "15m"
+              "15m",
             )}`,
             refreshToken: `Bearer ${signToken(
               { _id: _id.toString(), name: name },
-              "30d"
+              "30d",
             )}`,
             expireAt: new Date(Date.now() + 30 * 864e5),
           });
