@@ -118,7 +118,7 @@ const ChatContent = () => {
       setWaitingRespond(selectedChat ? selectedChat : "");
 
       const getResponse: MessageCreateResponse = createMessageResponse.data;
-      await axios.put(
+      axios.put(
         "http://localhost:5000/api/message/get-response",
         {
           chat: selectedChat,
