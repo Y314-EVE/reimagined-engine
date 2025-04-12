@@ -24,7 +24,7 @@ const Chatlist = () => {
     const createChatResponse = await axios.post(
       "http://localhost:5000/api/chat/create",
       {},
-      { headers: { Authorization: token } }
+      { headers: { Authorization: token } },
     );
     if (createChatResponse.data.code === 201) {
       setSelectedChat(createChatResponse.data.payload._id);
@@ -34,7 +34,7 @@ const Chatlist = () => {
           headers: {
             Authorization: token,
           },
-        }
+        },
       );
       setChatList(chatListResponse.data.data);
     }
@@ -49,7 +49,7 @@ const Chatlist = () => {
           setSelectedChat(chat._id);
         }}
       >
-        <p className="text-base mix-blend-difference text-gray-100">
+        <p className="text-base overflow-x-hidden text-ellipsis mix-blend-difference text-gray-100">
           {chat.title}
         </p>
         <p className="text-sm text-gray-400">{localtime}</p>
@@ -81,7 +81,7 @@ const Chatlist = () => {
   }, []);
 
   return (
-    <div className="sm:-w-2/6 md:w-1/6 flex flex-col px-4 h-full overflow-scroll">
+    <div className="sm:-w-2/6 md:w-1/6 flex flex-col px-4 h-full overflow-y-scroll">
       <button
         className="bg-green-200 text-gray-600 mb-2"
         onClick={() => {

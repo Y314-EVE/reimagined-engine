@@ -96,7 +96,7 @@ class MessageController {
         const message =
           chatTarget && chatTarget.messages.length > 0
             ? await Message.findById(
-                chatTarget.messages[chatTarget.messages.length - 1]
+                chatTarget.messages[chatTarget.messages.length - 1],
               )
             : null;
         const context = message ? message.context : [];
@@ -196,12 +196,12 @@ class MessageController {
                 messages: history,
                 stream: false,
                 options: {
-                  num_ctx: 64000,
+                  num_ctx: 65536,
                   num_predict: -2,
                   temperature: 0.5,
                   top_p: 0.9,
                 },
-              }
+              },
             );
             const { message } = promptResponse.data;
             respondMessage.content = message.content;

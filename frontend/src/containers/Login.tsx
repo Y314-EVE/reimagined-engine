@@ -10,15 +10,27 @@ const Login = () => {
   const [signUp, setSignUp] = useState(false);
   const [loginFailed, setLoginFailed] = useState(false);
   const [loginFailedMessage, setLoginFailedMessage] = useState("");
+  const [registerFailed, setRegisterFailed] = useState(false);
+  const [registerFailedMessage, setRegisterFailedMessage] = useState("");
 
   const navigate = useNavigate();
 
   const loginRequest = async (email: string, password: string) => {
+    if (!email.trim() || !password) {
+      setLoginFailed(true);
+      setLoginFailedMessage("Email and password are required");
+      return;
+    }
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.trim())) {
+      setLoginFailed(true);
+      setLoginFailedMessage("Invalid email");
+      return;
+    }
     try {
       const loginResponse = await axios.post(
         "http://localhost:5000/api/auth/login",
         {
-          email: email,
+          email: email.trim(),
           password: password,
         },
       );
@@ -50,6 +62,26 @@ const Login = () => {
     password: string,
     confirm_password: string,
   ) => {
+    if (!email.trim() || !password || !name.trim()) {
+      setRegisterFailed(true);
+      setRegisterFailedMessage("Email, name, and password are required");
+      return;
+    }
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email.trim())) {
+      setRegisterFailed(true);
+      setRegisterFailedMessage("Invalid email");
+      return;
+    }
+    if (password.length < 8) {
+      setRegisterFailed(true);
+      setRegisterFailedMessage("Password must be at least 8 characters");
+      return;
+    }
+    if (password !== confirm_password) {
+      setRegisterFailed(true);
+      setRegisterFailedMessage("Passwords do not match");
+      return;
+    }
     try {
       const registerResponse = await axios.post(
         "http://localhost:5000/api/auth/register",
@@ -61,7 +93,7 @@ const Login = () => {
         },
       );
       if (registerResponse.data.code === 201) {
-        alert("Sucessfully registered.");
+        alert("A verification email has been sent to your email address.");
         window.location.reload();
       }
     } catch (error) {
@@ -81,7 +113,7 @@ const Login = () => {
               onChange={(event) => {
                 setUserName(event.target.value);
               }}
-              className="w-48 border-2 rounded"
+              className="w-full border-2 rounded"
             />
           </div>
         ) : (
@@ -95,7 +127,7 @@ const Login = () => {
           onChange={(event) => {
             setUserEmail(event.target.value);
           }}
-          className="w-48 border-2 rounded"
+          className="w-full border-2 rounded"
         />
 
         <p className="p-2 text-gray-400">Password</p>
@@ -111,10 +143,10 @@ const Login = () => {
               loginRequest(userEmail, password);
             }
           }}
-          className="w-48 border-2 rounded"
+          className="w-full border-2 rounded"
         />
 
-        {loginFailed ? (
+        {!signUp && loginFailed ? (
           <p className="flex text-red-600 p-1">{loginFailedMessage}</p>
         ) : (
           ""
@@ -140,9 +172,15 @@ const Login = () => {
                   );
                 }
               }}
-              className="w-48 border-2 rounded"
+              className="w-full border-2 rounded"
             />
           </div>
+        ) : (
+          ""
+        )}
+
+        {signUp && registerFailed ? (
+          <p className="flex text-red-600 p-1">{registerFailedMessage}</p>
         ) : (
           ""
         )}
@@ -166,7 +204,17 @@ const Login = () => {
 
         <p
           className="self-center underline text-blue-500 cursor-pointer"
-          onClick={() => setSignUp((prev) => !prev)}
+          onClick={() => {
+            setSignUp((prev) => !prev);
+            setUserName("");
+            setUserEmail("");
+            setPassword("");
+            setConfirmPassword("");
+            setLoginFailed(false);
+            setLoginFailedMessage("");
+            setRegisterFailed(false);
+            setRegisterFailedMessage("");
+          }}
         >
           {!signUp ? "Sign up" : "Login"}
         </p>
