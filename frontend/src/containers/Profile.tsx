@@ -104,6 +104,7 @@ const Profile = () => {
               <div className="flex flex-row items-center">
                 <input
                   type="text"
+                  className="border-2 border-gray-200 rounded p-2"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => {
@@ -116,7 +117,6 @@ const Profile = () => {
                       setIsEditingName(false);
                     }
                   }}
-                  className="border-2 border-gray-200 rounded p-2"
                 />
                 <FiCheck
                   className="ml-2 cursor-pointer"
@@ -134,7 +134,7 @@ const Profile = () => {
               </div>
             ) : (
               <div className="flex flex-row items-center">
-                <p className="min-w-48 max-w-100 flex-1 p-2 text-black dark:text-white">
+                <p className="min-w-48 max-w-100 flex-1 p-2 text-white">
                   {userInfo.name}
                 </p>
                 <FiEdit2
@@ -149,7 +149,7 @@ const Profile = () => {
           </div>
           <p className="p-2 text-gray-400">Email</p>
           <div className="flex flex-row items-center">
-            <p className="min-w-48 max-w-100 flex-1 p-2 text-black dark:text-white">
+            <p className="min-w-48 max-w-100 flex-1 p-2 text-white">
               {userInfo.email}
             </p>
           </div>

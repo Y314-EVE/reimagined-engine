@@ -11,36 +11,6 @@ const EMAILPW = process.env.EMAILPW || "";
 const SENDER = process.env.SENDER || EMAIL || "";
 
 class AuthController {
-  // FOR TESTING ONLY! DELETE BEFORE DEPLOYMENT
-  static listAll = async (req: Request, res: Response) => {
-    try {
-      const userList = await User.find().exec();
-      if (!userList) {
-        return res.status(404).json({
-          code: 404,
-          message: "Not found.",
-        });
-      }
-      const userListOutput = userList.map((user) => {
-        return {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-        };
-      });
-      res.status(200).json({
-        message: "User List (all)",
-        data: userListOutput,
-      });
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({
-        code: 500,
-        message: "Internal server error.",
-      });
-    }
-  };
-
   // user info
   static userInfo = async (req: Request, res: Response) => {
     try {
@@ -118,7 +88,7 @@ class AuthController {
         <p>Thank you for registering with Fitness Coach LLM!</p>
         <br/>
         <p>Please click on the following link to verify your email address:</p>
-        <a href="http://localhost:5000/api/auth/verify-email/${token}/${email}>http://localhost:5000/api/auth/verify-email/${token}/${email}</a>`,
+        http://localhost:5000/api/auth/verify-email/${token}/${email}`,
       };
 
       const newVerification = await new Verification({
@@ -189,8 +159,8 @@ class AuthController {
         html: `
           <p>Thank you for registering with Fitness Coach LLM!</p>
           <br/>
-          <p>Please click on the following link to verify your email address:</p>
-          <a href="http://localhost:5173/reset-password/${token}/${email}">http://localhost:5173/reset-password/${token}/${email}</a>
+          <p>Please click on the following link to reset your password:</p>
+          http://localhost:5173/reset-password/${token}/${email}
         `,
       };
 

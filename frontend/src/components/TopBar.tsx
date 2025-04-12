@@ -3,7 +3,11 @@ import { tokenUpdate } from "../helpers";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 
-const TopBar = () => {
+interface TopBarProps {
+  mode: string;
+}
+
+const TopBar = (props: TopBarProps) => {
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
@@ -46,9 +50,34 @@ const TopBar = () => {
   }, [menuRef]);
 
   return (
-    <div className="flex flex-row flex-1 justify-end border-b-2 shadow px-4 py-2">
+    <div className="flex flex-row justify-end border-b-2 shadow">
+      <div className="flex flex-col flex-1">
+        <div className="flex flex-row mt-1">
+          <div
+            className={`select-none px-4 pt-2 mx-4 rounded-t-lg ${props.mode == "schedule" ? "hover:bg-green-200 cursor-pointer text-black dark:text-white dark:hover:text-black" : "text-black bg-green-400"}`}
+            onClick={() => {
+              if (props.mode == "schedule") {
+                navigate("/chat");
+              }
+            }}
+          >
+            <p>Chat</p>
+          </div>
+          <div
+            className={`select-none px-4 pt-2 mx-4 rounded-t-lg ${props.mode == "chat" ? "hover:bg-green-200 cursor-pointer text-black dark:text-white dark:hover:text-black" : "text-black bg-green-400"}`}
+            onClick={() => {
+              if (props.mode == "chat") {
+                navigate("/schedule");
+              }
+            }}
+          >
+            <p className="">Schedule</p>
+          </div>
+        </div>
+        <div className="py-2 pb-3 bg-green-400" />
+      </div>
       <div
-        className="px-10 py-2 flex flex-row justify-center items-center border-l-2 bg-black cursor-pointer hover:invert mix-blend-difference select-none"
+        className="px-10 py-4 flex flex-row justify-center items-center border-l-2 bg-black cursor-pointer hover:invert mix-blend-difference select-none"
         onClick={() => setIsProfileOpen(!isProfileOpen)}
       >
         <p className="text-gray-400 font-bold">{`Hi, ${userInfo.name}`}</p>

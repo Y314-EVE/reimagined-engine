@@ -4,8 +4,7 @@ import auth from "../middleware/auth";
 import { registerValidation } from "../middleware/registerValidation";
 
 const router = express.Router();
-// For testing ONLY
-router.get("/user-listALL", AuthController.listAll);
+
 router.post("/user-info", auth, AuthController.userInfo);
 router.post("/register", registerValidation, AuthController.registration);
 router.post("/login", AuthController.login);
