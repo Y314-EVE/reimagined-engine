@@ -101,6 +101,7 @@ interface IExercisePlan {
 
 
 interface IExerciseRecord {
+    finish_time: Date;
     targetExercise: string; // ID of the target exercise plan
     finishedExercise: string; // ID of the finished exercise plan
     timeRecord: {
@@ -255,8 +256,8 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
             {
                 targetExercise : "67e18d1c5d3e741e3301732c",
                 finishedExercise : return_data.id as string,
-                timeRecord : timeRecord
-
+                timeRecord : timeRecord,
+                finish_time : new Date(),
 
             }
         

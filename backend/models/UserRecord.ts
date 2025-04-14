@@ -16,6 +16,7 @@ interface IFinishingTime {
 interface IExerciseRecord {
   targetExercise: mongoose.Types.ObjectId; // Reference to the target exercise plan
   finishedExercise: mongoose.Types.ObjectId; // Reference to the finished exercise plan
+  finish_time: Date;
   timeRecord: {
     start_time: number;          // Start time of the exercise
     finishing_times: IFinishingTime[]; // Array of finishing times and names
@@ -45,6 +46,9 @@ const userRecordSchema = new Schema<IUserRecord>({
   },*/
   _user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   exerciseRecord: [{
+    finish_time: {type: Date,
+    default: Date.now,},
+
     targetExercise: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'ExercisePlan', // Reference to the ExercisePlan model

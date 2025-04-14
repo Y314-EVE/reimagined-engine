@@ -42,6 +42,7 @@ interface IBreak {
   interface IExerciseRecord {
     targetExercise: string; // ID of the target exercise plan
     finishedExercise: string; // ID of the finished exercise plan
+    finish_time:Date;
     timeRecord: {
       start_time: number;           // Start time of the exercise in minutes
       finishing_times: IFinishingTime[]; // Array of finishing times
