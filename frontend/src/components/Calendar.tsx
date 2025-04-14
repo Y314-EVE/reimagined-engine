@@ -859,7 +859,7 @@ const weightField = (unit, index) => {
         Fri: 'Friday',
         Sat: 'Saturday'
     }; 
-        const [width, setWidth] = useState(70); // Initial width of left panel (70%)
+        const [width, setWidth] = useState(50); // Initial width of left panel (40%)
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         const startX = e.clientX;
@@ -883,7 +883,17 @@ const weightField = (unit, index) => {
             <div className = "schedule"> 
             <TopBar mode="schedule" /> 
             <div className="resizable-container">
-            <div className="left-panel" style={{ width: `${width}%` }}> {}
+
+
+            <div  className="left-panel" style={{ width: `${width}%` }}>
+                     { <ExercisePlansList  workoutTime={ClickDate} />}
+                 </div>
+                
+              {/*<div className="divider" {onMouseDown={handleMouseDown} } />    */}
+              <div className="divider" />   
+            
+                 
+                 <div className="right-panel"> {}
              
              {
                  
@@ -924,11 +934,6 @@ const weightField = (unit, index) => {
                  </div>
          }
          </div>
-     
-             <div className="divider" onMouseDown={handleMouseDown} />
-                 <div className="right-panel">
-                     { <ExercisePlansList  workoutTime={ClickDate} />}
-                 </div>
              </div>
          </div>
      

@@ -12,26 +12,26 @@ html, body, #root {
     height:100%;
 }
 
-.left-panel {
-    background-color: #f0f0f0; /* Background for the left panel */
-    transition: width 0.2s ease; /* Smooth transition for resizing */
+.right-panel {
+    background-color: #050505; /* Background for the left panel */
+    /*transition: width 0.2s ease; /* Smooth transition for resizing */
 }
 
-.right-panel {
+.left-panel {
     flex-grow: 1; /* Right panel takes remaining space */
     background-color: #050505; /* Background for the right panel */
 }
 
 .divider {
-    cursor: ew-resize; /* Resize cursor */
+    /*cursor: ew-resize; /* Resize cursor */
     width: 5px; /* Width for divider */
     background-color: #6f6d6d; /* Divider color */
 }
 
 /* Add more width classes as necessary */
 .calendar {
-    flex: 0 0 70%; /* Left side: Calendar (70% width) */
-    height: 100%; /* Full height */
+    flex: 0 0 40%;
+    height: 40%; /* Full height */
     overflow-y: auto; /* Scroll if content overflows */
     display: flex;
     flex-direction: column; /* Stack header and days */
@@ -40,7 +40,7 @@ html, body, #root {
 }
 
 .module {
-    flex: 0 0 30%; /* Right side: Side Panel (30% width) */
+    flex: 0 0 60%; /* Right side: Side Panel (30% width) */
     padding: 16px; /* Add some padding */
     background-color: #f0f0f0; /* Light background color */
     border-left: 1px solid #ccc; /* Optional: add a border for separation */
@@ -92,7 +92,7 @@ html, body, #root {
     justify-content: center;
     border: 1px solid #eee;
     border-radius: 4px;
-    background-color: #f9f9f9;
+    background-color: #5b5b5b;
 }
 
 .exercise-detail {
