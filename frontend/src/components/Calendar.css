@@ -224,6 +224,14 @@ html, body, #root {
     font-size: 20px; /* Adjust size as necessary */
     color: red; /* Red color for delete */
 }
+.edit-button {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px; /* Adjust size as necessary */
+    color: green; /* Red color for delete */
+}
 
 
 

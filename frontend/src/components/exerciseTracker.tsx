@@ -137,13 +137,30 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
     date : undefined, days : undefined},
         createdAt: new Date(),
     });
+
+    const [targetExercise, setTargetExercise] = useState<IExercisePlan>({
+        exercises: JSON.parse(JSON.stringify(exercisePlan.exercises)),
+        workoutTime: { type: 'no_specific', date: undefined, days: undefined },
+        createdAt: new Date(),
+    });
+    
     const [exerciseUnits, setExerciseUnits] = useState<IExercisePlan>(JSON.parse(JSON.stringify(exercisePlan)));
     const [completedExercises, setCompletedExercises] = useState<any[]>([]); // Store completed exercises
     const [breakTimerSeconds, setBreakTimerSeconds] = useState(0);
     const [breakIntervalId, setBreakIntervalId] = useState<number | null>(null);
     const [startTime, setStartTime] = useState<number | null>(null); // Store the start time
 
+    const [inputs, setInputs] = useState(
+        exerciseUnits.exercises.map(unit => ({
+            frequencyOrDuration: unit.exercise.frequencyOrDuration,
+            weight: unit.exercise.weight
+        }))
+    );
     
+   
+
+
+
     useEffect(() => {
         let timer: number | undefined;
 
@@ -159,17 +176,19 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
     
 
     const handleDoneExercise = (unit,index) => {
+        
+
         const finishingTime = {
             time: timerSeconds,
             exerciseName: unit.exercise.name
 
         };
-
+        const isFrequency = Exercise_List.find(ex => ex.exerciseName === unit.exercise.name)?.frequencyOrDuration === 'frequency';
         const currentExercise: IExercise = {
             name: unit.exercise.name,
             requiredTool: unit.exercise.requiredTool,
-            weight: unit.exercise.weight, // Taken from the current input
-            frequencyOrDuration: unit.exercise.frequencyOrDuration, // Taken from the current input
+            weight: inputs[index].weight, // Taken from the current input
+            frequencyOrDuration: isFrequency ? inputs[index].frequencyOrDuration : inputs[index].frequencyOrDuration, // Taken from the current input
             type: unit.exercise.type // Type based on the original exercise
         };
 
@@ -189,8 +208,17 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
             exercises: prevUnits.exercises.filter((_, i) => i !== index), // Filter the exercises array
         }));
 
+        setInputs((prevInputs) => {
+            // Filter out the input corresponding to the removed exercise
+            const updatedInputs = prevInputs.filter((_, i) => i !== index);
+            
+            return updatedInputs; // Return filtered inputs array
+        });
+        
 
         setFinishingTimes((prev) => [...prev, finishingTime]);
+
+       
     };
 
     const handleBreakToggle = () => {
@@ -250,12 +278,15 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
         
 
         try {
-            const return_data = await createExercisePlan(DoneExercise);
-            console.log("Return Data:", JSON.stringify(return_data, null, 2)); // Log the return data
+            const return_target_plan = await createExercisePlan(targetExercise);
+            const return_done_plan = await createExercisePlan(DoneExercise);
+            console.log("return_target_plan:", JSON.stringify(return_target_plan, null, 2)); // Log the return data
+            console.log("return_done_plan:", JSON.stringify(return_done_plan, null, 2)); // Log the return data
+           
             const EexerciseRecord : IExerciseRecord = 
             {
-                targetExercise : "67e18d1c5d3e741e3301732c",
-                finishedExercise : return_data.id as string,
+                targetExercise : return_target_plan.id as string,
+                finishedExercise : return_done_plan.id as string,
                 timeRecord : timeRecord,
                 finish_time : new Date(),
 
@@ -277,6 +308,15 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
        
     };
 
+      const handleInputChange = (index  , type , value ) => {
+        const newInputs = [...inputs];
+        newInputs[index][type] = value;
+        setInputs(newInputs);
+    };
+    
+
+
+
     return (
         <div> 
             <div className="timer-section">
@@ -295,7 +335,7 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
                 {exerciseUnits.exercises.map((unit, index) => {
                     const exercise = Exercise_List.find(ex => ex.exerciseName === unit.exercise.name);
                     const isFrequency = exercise?.frequencyOrDuration === 'frequency';
-    
+                    const isToolRequired = exercise?.toolRequired;
                     return (
                         <div key={index} style={{ marginBottom: '15px' }}>
                             <div>
@@ -304,10 +344,88 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
                             
                             <div>
                                 <span>Target: </span>
-                                {isFrequency 
-                                    ? <span>Frequency: {unit.exercise.frequencyOrDuration}</span>
-                                    : <span>Duration: {Math.floor(unit.exercise.frequencyOrDuration / 60)} min {unit.exercise.frequencyOrDuration % 60} sec</span>
-                                }
+                                {isFrequency ? (
+                               <div><input
+                                  type="number"
+                                  value={inputs[index].frequencyOrDuration}
+                                  onChange={(e) => {
+                                      const value = parseInt(e.target.value, 10); // Parse the input to an integer
+                          
+                                      // Ensuring the input is an integer and not less than 1
+                                      if (!isNaN(value) && value >= 1) {
+                                          handleInputChange(index, 'frequencyOrDuration', value); // Update frequencyOrDuration with the valid integer value
+                                      } else if (e.target.value === '') {
+                                          // Allow the input to be empty
+                                          handleInputChange(index, 'frequencyOrDuration', ''); // Clear the value if the input is empty
+                                      }
+                                  }}
+                                  placeholder="Frequency"
+                              />
+                              <span> time</span> </div>
+
+
+                            ) : (
+
+
+
+                                <> <div>
+                                                <input
+                                                type="number"
+                                                value={Math.floor(inputs[index].frequencyOrDuration / 60)}
+                                                onChange={(e) => {
+                                                    const minutes = parseInt(e.target.value) || 0; // Use 0 if the input value is NaN
+
+                                                    // Ensure minutes is not negative
+                                                    if (minutes >= 0) {
+                                                        const totalSeconds = (minutes * 60) + (inputs[index].frequencyOrDuration % 60); // Calculate total seconds
+                                                        // Check if the input is not both minutes and seconds being 0
+                                                        if (totalSeconds > 0 || inputs[index].frequencyOrDuration % 60 > 0) {
+                                                            handleInputChange(index, 'frequencyOrDuration', totalSeconds); // Update frequencyOrDuration with total seconds
+                                                        }
+                                                    }
+                                                }}
+                                                placeholder="Minutes"
+                                            />
+                                            <span> min</span> 
+
+                                            <input
+                                                type="number"
+                                                value={inputs[index].frequencyOrDuration % 60}
+                                                onChange={(e) => {
+                                                    const seconds = parseInt(e.target.value) || 0; // Use 0 if the input value is NaN
+
+                                                    // Ensure seconds is not negative
+                                                    if (seconds >= 0) {
+                                                        const totalSeconds = (Math.floor(inputs[index].frequencyOrDuration / 60) * 60) + seconds; // Calculate total seconds
+                                                        // Check if the input is not both minutes and seconds being 0
+                                                        if (totalSeconds > 0 || Math.floor(inputs[index].frequencyOrDuration / 60) > 0) {
+                                                            handleInputChange(index, 'frequencyOrDuration', totalSeconds); // Update frequencyOrDuration with total seconds
+                                                        }
+                                                    }
+                                                }}
+                                                placeholder="Seconds"
+                                            />
+                                            <span> sec</span></div>
+                                </>
+                            )}
+                            {isToolRequired && (
+                                <div><input
+                                type="number"
+                                value={inputs[index].weight}
+                                onChange={(e) => {
+                                    const value = parseFloat(e.target.value); // Get the value as a number
+                                    if (value > 0) { // Allow only positive values (exclusive of 0)
+                                        handleInputChange(index, 'weight', value);
+                                    } else {
+                                        // Optionally handle invalid input, e.g., set to empty or show a message
+                                        handleInputChange(index, 'weight', ''); // Clear value if invalid
+                                    }
+                                }}
+                            placeholder="Weight"
+                            min="0.01" // Sets a minimum value that is inclusive}
+                                
+                            />   <span> kg</span>  </div>
+                            )}
                             </div>
                             
                             <button onClick={() => handleDoneExercise(unit, index)} style={{ margin: '10px 0' }}>
@@ -328,7 +446,8 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
             </div>
         </div>
     );
-
+    /////////
+    //
   
 };
 

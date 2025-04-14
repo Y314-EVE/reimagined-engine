@@ -92,7 +92,8 @@ class ExerciseController {
     } catch (error) {
       res.status(500).json({ message: "Error creating exercise plan", error });
     }
-  }*/
+  }
+  */
   public static async createExercisePlan(req: Request, res: Response) {
     try {
       
@@ -115,7 +116,7 @@ class ExerciseController {
     }
  }
  
-/*
+
   // Modify an existing exercise plan
   public static async modifyExercisePlan(req: Request, res: Response) {
     const { id } = req.params; // Extract ID from URL parameters
@@ -129,7 +130,8 @@ class ExerciseController {
       res.status(500).json({ message: "Error modifying exercise plan", error });
     }
   }
-*/
+
+  
   // Delete an exercise plan
   public static async deleteExercisePlan(req: Request, res: Response) {
     const { id } = req.params; // Extract ID from URL parameters
