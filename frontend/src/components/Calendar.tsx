@@ -505,6 +505,7 @@ const weightField = (unit, index) => {
         const [filterPlans, setFilterPlans] = useState<IExercisePlan[]>([])
         const [isFiltered, setIsFiltered] = useState<boolean>(false); // State to track if we are showing today's plans
         const [toggle,setToggle] = useState<number>(0);
+        const [selectedDay, setSelectedDay] = useState<string>("None")
         const handleExerciseSelect = (exercise : IExercisePlan) => {
             // Navigate to ExerciseTracker and pass the selected exercise plan as state
             
@@ -607,9 +608,10 @@ const weightField = (unit, index) => {
                    
                     if(!handleFilterPlans(workoutTime))
                     {setFilterPlans(exercisePlans);
-                      
-                    }
+                   
                     
+                    }
+
 
                 } catch (err) {
                     setError("Failed to load exercise plans."); // Handle error
@@ -632,8 +634,33 @@ const weightField = (unit, index) => {
                     }
                
             }
+
+
+
         }, [workoutTime, exercisePlans]); // Re-run this effect when workoutTime or exercisePlans change
-    
+        
+        useEffect(() => {
+            // If workoutTime or exercisePlans change, re-filter the plans
+            if(workoutTime === undefined)
+            {setSelectedDay("All");}
+            if(workoutTime !== undefined){
+                        
+                if(workoutTime!.type === "specific")
+                {
+                        setSelectedDay(`${workoutTime!.date!.toLocaleDateString()}`)
+
+                }
+                else if(workoutTime!.type === "period")
+                {
+                    setSelectedDay(`${workoutTime!.days!.join(`, `)}`)
+                }
+            }
+             
+            
+
+
+        }, [workoutTime]); // Re-run this effect when workoutTime or exercisePlans change
+        
 
         
         // Render loading state
@@ -704,7 +731,7 @@ const weightField = (unit, index) => {
                                                     getFrequencyOrDurationByExerciseName(ex.exercise.name) === 'frequency' 
                                                         ? `${ex.exercise.frequencyOrDuration} time `
                                                         : formatTime(ex.exercise.frequencyOrDuration)
-                                                } - {ex.exercise.requiredTool ? `${ex.exercise.weight} kg` : ""}
+                                                }  {ex.exercise.requiredTool ? `- ${ex.exercise.weight} kg` : ""}
                                             </li>
                                         ))}
                                     </ul>
@@ -728,8 +755,9 @@ const weightField = (unit, index) => {
         return (
             <div className="exercise_list_container">
                 <header className="exercise_list_header">
-                    <h1 onClick={() => setFilterPlans(exercisePlans) } style={{ cursor: 'pointer' }}>Exercise Plans</h1>
+                    <h1 onClick={() => {setFilterPlans(exercisePlans); setSelectedDay("All")} } style={{ cursor: 'pointer' }}>Exercise Plans</h1>
                 </header>
+                <h1 style={ {fontSize : '20px'}}>{"sort: " + selectedDay}</h1>
                 <div className="exercise_list_body">
         {
             handleExerciseListing(filterPlans)
