@@ -15,7 +15,7 @@ declare global {
   }
 }
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5003;
 const DBURL = process.env.DBURL || "mongodb:://localhost:27017";
 
 dbconnection(DBURL);
