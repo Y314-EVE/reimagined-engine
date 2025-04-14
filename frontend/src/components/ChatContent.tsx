@@ -66,7 +66,7 @@ const ChatContent = () => {
         return parts[0] === "access_token" ? parts[1] : prev;
       }, "");
       const chatResponse = await axios.post(
-        "http://localhost:5000/api/chat/get-chat",
+        "http://localhost:5003/api/chat/get-chat",
         { _id: selectedChat },
         {
           headers: { Authorization: token },
@@ -110,7 +110,7 @@ const ChatContent = () => {
         return parts[0] === "access_token" ? parts[1] : prev;
       }, "");
       const createMessageResponse = await axios.post(
-        "http://localhost:5000/api/message/create",
+        "http://localhost:5003/api/message/create",
         { chat: selectedChat, content: messageInput },
         { headers: { Authorization: token } }
       );
@@ -119,7 +119,7 @@ const ChatContent = () => {
 
       const getResponse: MessageCreateResponse = createMessageResponse.data;
       axios.put(
-        "http://localhost:5000/api/message/get-response",
+        "http://localhost:5003/api/message/get-response",
         {
           chat: selectedChat,
           prompt: getResponse.payload._id,
@@ -182,13 +182,13 @@ const ChatContent = () => {
       }, "");
       // const changeTitleResponse =
       await axios.put(
-        "http://localhost:5000/api/chat/change-title",
+        "http://localhost:5003/api/chat/change-title",
         { _id: chat._id, title: chatTitle },
         { headers: { Authorization: token } }
       );
       getChatList();
       const chatResponse = await axios.post(
-        "http://localhost:5000/api/chat/get-chat",
+        "http://localhost:5003/api/chat/get-chat",
         { _id: selectedChat },
         {
           headers: { Authorization: token },
@@ -210,7 +210,7 @@ const ChatContent = () => {
         }, "");
         // const deleteChatResponse =
         await axios.put(
-          "http://localhost:5000/api/chat/delete",
+          "http://localhost:5003/api/chat/delete",
           { _id: chat._id },
           { headers: { Authorization: token } }
         );

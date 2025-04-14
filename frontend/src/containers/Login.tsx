@@ -28,7 +28,7 @@ const Login = () => {
     }
     try {
       const loginResponse = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "http://localhost:5003/api/auth/login",
         {
           email: email.trim(),
           password: password,
@@ -84,7 +84,7 @@ const Login = () => {
     }
     try {
       const registerResponse = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "http://localhost:5003/api/auth/register",
         {
           name: name,
           email: email,

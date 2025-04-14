@@ -10,7 +10,7 @@ const tokenUpdate = async () => {
       return parts[0] === "refresh_token" ? parts[1] : prev;
     }, "");
     const updateTokenPairResponse = await axios.put(
-      "http://localhost:5000/api/auth/update-token-pair",
+      "http://localhost:5003/api/auth/update-token-pair",
       { refreshToken: refreshToken },
       {
         headers: {

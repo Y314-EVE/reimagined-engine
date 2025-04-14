@@ -1,0 +1,38 @@
+/* SidePanel.css */
+.drawer {
+    width: 300px; /* Initial width */
+    height: 100vh;
+    background-color: #333;
+    color: white;
+    position: fixed; /* Fixed position to overlay */
+    top: 0;
+    left: -300px; /* Initially hidden */
+    transition: left 0.3s ease;
+    overflow: hidden;
+    z-index: 1000;
+  }
+  
+  .drawer.open {
+    left: 0; /* Show the drawer */
+  }
+  
+  .drawer-content {
+    padding: 20px;
+  }
+  
+  .close-button {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: red; /* Close button color */
+    color: white;
+  }
+  
+  .resizer {
+    width: 5px; /* Width of the resizer */
+    height: 100%;
+    background-color: gray; /* Color of the resizer */
+    cursor: ew-resize; /* Change cursor to indicate resizing */
+    position: absolute; 
+    right: 0; /* Position it to the right edge*/
+    top: 0;
+  }

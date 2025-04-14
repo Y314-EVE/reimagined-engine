@@ -53,7 +53,7 @@ export const ChatProvider = (props: { children: ReactNode }) => {
       return parts[0] === "access_token" ? parts[1] : prev;
     }, "");
     const getChatListResponse = await axios.get(
-      "http://localhost:5000/api/chat/list-chats",
+      "http://localhost:5003/api/chat/list-chats",
       {
         headers: {
           Authorization: token,
@@ -64,7 +64,7 @@ export const ChatProvider = (props: { children: ReactNode }) => {
   };
   useEffect(() => {
     if (!socket) {
-      setSocket(io("http://localhost:5000"));
+      setSocket(io("http://localhost:5003"));
     }
   }, []);
   useEffect(() => {
