@@ -11,5 +11,7 @@ router.post("/exercise-plans-create",auth, ExerciseController.createExercisePlan
 
 router.delete("/exercise-plans-delete/:id",auth, ExerciseController.deleteExercisePlan);
 
+router.get("/exercise-plans-get-lastest-finished",auth, ExerciseController.getLatestFinishedExercisePlan);
+
 export default router;
 

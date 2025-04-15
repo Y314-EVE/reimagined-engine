@@ -143,6 +143,33 @@ class ExerciseController {
       res.status(500).json({ message: "Error deleting exercise plan", error });
     }
   }
+  public static async getLatestFinishedExercisePlan(
+    req: Request,
+    res: Response,
+  ) {
+    try {
+      if (typeof req.user !== "string") {
+        const { _id } = req.user;
+        const userRecord = await UserRecord.findOne({ _user_id: _id }).exec();
+        const lastestFinishedExerciseRecord =
+          userRecord?.exerciseRecord.at(-1)?.finishedExercise;
+        if (!lastestFinishedExerciseRecord) {
+          return res
+            .status(404)
+            .json({ message: "No finished exercise found" });
+        } else{
+          const exercisePlan = await ExercisePlan.findById(lastestFinishedExerciseRecord).exec();
+        res.status(200).json(exercisePlan);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        code: 500,
+        message: "Internal server error.",
+      });
+    }
+  }
 }
 
 export default ExerciseController;

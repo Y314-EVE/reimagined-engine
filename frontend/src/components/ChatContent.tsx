@@ -70,7 +70,7 @@ const ChatContent = () => {
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        }
+        },
       );
 
       setChat({
@@ -112,7 +112,7 @@ const ChatContent = () => {
       const createMessageResponse = await axios.post(
         "http://localhost:5003/api/message/create",
         { chat: selectedChat, content: messageInput },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
       setMessageInput("");
       setWaitingRespond(selectedChat ? selectedChat : "");
@@ -125,9 +125,49 @@ const ChatContent = () => {
           prompt: getResponse.payload._id,
           respond: getResponse.respond,
         },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
     }
+    async function createPlan() {
+      await tokenUpdate();
+      const token = document.cookie.split("; ").reduce((prev, curr) => {
+        const parts = curr.split("=");
+        return parts[0] === "access_token" ? parts[1] : prev;
+      }, "");
+
+      const getFinishedExerciseResponse = await axios.get(
+        "http://localhost:5003/api/exercise/exercise-plans-get-lastest-finished",
+        { headers: { Authorization: token } },
+      );
+      let exerciseStr =
+        "I have done the following in my last session, please make a new weekly plan according to my progress:\n";
+      getFinishedExerciseResponse.data.exercises.map((exercise) => {
+        exerciseStr += `${exercise.exercise.name}(${exercise.exercise.weight}kg) with reps/duration of ${exercise.exercise.frequencyOrDuration}\n`;
+      });
+
+      const createMessageResponse = await axios.post(
+        "http://localhost:5003/api/message/create",
+        {
+          chat: selectedChat,
+          content: exerciseStr,
+        },
+        { headers: { Authorization: token } },
+      );
+
+      setWaitingRespond(selectedChat ? selectedChat : "");
+
+      const getResponse: MessageCreateResponse = createMessageResponse.data;
+      axios.put(
+        "http://localhost:5003/api/message/get-response",
+        {
+          chat: selectedChat,
+          prompt: getResponse.payload._id,
+          respond: getResponse.respond,
+        },
+        { headers: { Authorization: token } },
+      );
+    }
+
     return (
       <div className="px-4">
         <div className="border-2 border-gray-500 rounded-md mb-2 p-2 flex flex-col">
@@ -147,20 +187,36 @@ const ChatContent = () => {
             }}
           />
           <div className="py-1" />
-          <button
-            type="button"
-            className="rounded-full bg-sky-700 text-white font-semibold text-xs self-end"
-            value={messageInput}
-            onChange={(e) => {
-              setMessageInput(e.currentTarget.value);
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              createMessage();
-            }}
-          >
-            Send
-          </button>
+          <div className="flex flex-row justify-end">
+            <button
+              type="button"
+              className="rounded-lg bg-sky-500 text-white font-semibold text-xs mr-2"
+              value={messageInput}
+              onChange={(e) => {
+                setMessageInput(e.currentTarget.value);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                createPlan();
+              }}
+            >
+              Plan with record
+            </button>
+            <button
+              type="button"
+              className="rounded-lg bg-green-500 text-white font-semibold text-xs"
+              value={messageInput}
+              onChange={(e) => {
+                setMessageInput(e.currentTarget.value);
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                createMessage();
+              }}
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -184,7 +240,7 @@ const ChatContent = () => {
       await axios.put(
         "http://localhost:5003/api/chat/change-title",
         { _id: chat._id, title: chatTitle },
-        { headers: { Authorization: token } }
+        { headers: { Authorization: token } },
       );
       getChatList();
       const chatResponse = await axios.post(
@@ -192,7 +248,7 @@ const ChatContent = () => {
         { _id: selectedChat },
         {
           headers: { Authorization: token },
-        }
+        },
       );
 
       setChat({
@@ -212,7 +268,7 @@ const ChatContent = () => {
         await axios.put(
           "http://localhost:5003/api/chat/delete",
           { _id: chat._id },
-          { headers: { Authorization: token } }
+          { headers: { Authorization: token } },
         );
         setSelectedChat("");
         getChatList();

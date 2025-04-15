@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './ExerciseTracker.css'; // Import the CSS file
+import './exerciseTracker.css'; // Import the CSS file
 import Exercise_List from '../Exercise';
 import axios from 'axios';
 import { tokenUpdate } from "../helpers";
