@@ -8,8 +8,10 @@ html, body, #root {
 }
 
 .schedule{
-    
-    height:100%;
+    display: flex;
+    flex-direction: column; /* Arrange children vertically */
+    height: 100vh; /* Full viewport height */ 
+   
 }
 
 .right-panel {
@@ -32,7 +34,7 @@ html, body, #root {
 .calendar {
     flex: 0 0 40%;
     height: 40%; /* Full height */
-    overflow-y: auto; /* Scroll if content overflows */
+    
     display: flex;
     flex-direction: column; /* Stack header and days */
     position: relative; /* Relative positioning for absolute children */
@@ -45,7 +47,6 @@ html, body, #root {
     background-color: #f0f0f0; /* Light background color */
     border-left: 1px solid #ccc; /* Optional: add a border for separation */
     height: 100%; /* Full height */
-    overflow-y: auto; /* Scroll if content overflows */
 }
 
 
@@ -114,7 +115,10 @@ html, body, #root {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: auto; /* Enable scroll if needed */
+
     z-index: 1000; /* Ensure it overlays other content */
+
 }
 
 .modal-content {
@@ -224,13 +228,19 @@ html, body, #root {
     font-size: 20px; /* Adjust size as necessary */
     color: red; /* Red color for delete */
 }
+
 .edit-button {
-    margin-left: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 20px; /* Adjust size as necessary */
-    color: green; /* Red color for delete */
+    background-color: rgba(34, 255, 0, 0.795); /* Red color for delete */
+    color: white; /* Text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px 10px; /* Padding */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.edit-button:hover {
+    background-color: rgba(28, 139, 0, 0.717); /* Darker red on hover */
 }
 
 
@@ -288,7 +298,7 @@ html, body, #root {
 }
 
 .exercise_list_item.selected {
-    background-color: #d1e7dd; /* Highlight selected exercise plan */
+    background-color: #628374; /* Highlight selected exercise plan */
 }
 
 .delete_button {

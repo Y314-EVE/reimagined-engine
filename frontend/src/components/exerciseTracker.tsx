@@ -4,6 +4,9 @@ import Exercise_List from '../Exercise';
 import axios from 'axios';
 import { tokenUpdate } from "../helpers";
 import { useLocation, Navigate } from 'react-router';
+
+
+
 // Base URL for the API
 const API_URL = 'http://localhost:5003/api/exercise';
 
@@ -120,6 +123,48 @@ interface IUserRecord {
   
 
 
+  const Timer = () => {
+    const [seconds, setSeconds] = useState(0); // Timer value in seconds
+    const [isRunning, setIsRunning] = useState(false); // Timer state
+
+    useEffect(() => {
+        let interval : number | undefined ; // Variable to store the interval
+
+        // If the timer is running, set up the interval
+        if (isRunning) {
+            interval = setInterval(() => {
+                setSeconds(prevSeconds => prevSeconds + 1); // Increment the seconds
+            }, 1000); // Count every second
+        } else if (!isRunning && seconds !== 0) {
+            clearInterval(interval); // Clear the interval if not running
+        }
+
+        return () => clearInterval(interval); // Cleanup the interval on component unmount
+    }, [isRunning, seconds]); // Re-run effect when isRunning or seconds changes
+
+    const handleClick = () => {
+        if (isRunning) {
+            setIsRunning(false); // Stop the timer
+        } else {
+            setSeconds(0); // Reset seconds to 0
+            setIsRunning(true); // Start the timer
+        }
+    };
+
+    return (
+        <div>
+            
+            <button onClick={handleClick}>
+                {isRunning ?`${Math.floor(seconds/60)} min : ${seconds % 60} sec`: 'Start'}
+            </button>
+        </div>
+    );
+};
+
+
+
+
+
 // Main component
 const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePlan }) => {
     const [userPlan, setUserPlan] = useState<IExerciseRecord>();
@@ -143,7 +188,10 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
         workoutTime: { type: 'no_specific', date: undefined, days: undefined },
         createdAt: new Date(),
     });
+   
     
+
+
     const [exerciseUnits, setExerciseUnits] = useState<IExercisePlan>(JSON.parse(JSON.stringify(exercisePlan)));
     const [completedExercises, setCompletedExercises] = useState<any[]>([]); // Store completed exercises
     const [breakTimerSeconds, setBreakTimerSeconds] = useState(0);
@@ -323,12 +371,12 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
                 <div className="timer-display">
                     Time: {formatTime(timerSeconds)} {/* Displaying the timer */}
                 </div>
+                <Timer />
                 <div> {/* Wrapping the button and break timer */}
                     <button onClick={handleBreakToggle}>
-                        {isBreakActive ? 'Stop Break' : 'Start Break'}
+                        {isBreakActive ? `${formatTime(breakTimerSeconds)}` : 'Start Break'}
                     </button>
-                    {isBreakActive && <h3>Break Timer: {formatTime(breakTimerSeconds)}</h3>} {/* Displaying break timer */}
-                </div>
+                    </div>
             </div>
     
             <div> 
@@ -343,7 +391,9 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
                             </div>
                             
                             <div>
-                                <span>Target: </span>
+                                <span>Target: {isFrequency ? `${inputs[index].frequencyOrDuration}time ` 
+                                : `${formatTime(inputs[index].frequencyOrDuration)}` }  </span>
+                                <span>{isToolRequired ?  `${inputs[index].frequencyOrDuration} kg` : ""} </span>
                                 {isFrequency ? (
                                <div><input
                                   type="number"
@@ -437,7 +487,7 @@ const ExerciseTracker: React.FC<{ exercisePlan: IExercisePlan }> = ({ exercisePl
                     );
                 })}
             </div>
-
+           
             <div>
                 {<button onClick={handleFinishExercise} style={{ margin: '10px 0' }}>
     Finish Exercise

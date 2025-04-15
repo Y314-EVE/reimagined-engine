@@ -120,22 +120,45 @@ export const deleteExercisePlan = async (id: string) => {
 
 const Modal_Edit: React.FC<{ isOpen: boolean; onClose: () => void; edit_exercise_plan ?: IExercisePlan }> = ({ isOpen, onClose, edit_exercise_plan }) => {
     
-     // Define the state with the desired structure
-     const [exerciseUnits, setExerciseUnits] = useState<Array<{
-        exerciseType: string; 
-        exerciseName: string; 
-        frequencyOrDuration: number; 
-        weight: number; 
-        requiredTool: boolean 
-    }>>(
-        edit_exercise_plan!.exercises.map(item => ({
-            exerciseType: item.exercise.type,
-            exerciseName: item.exercise.name,
-            frequencyOrDuration: item.exercise.frequencyOrDuration,
-            weight: item.exercise.weight,
-            requiredTool: item.exercise.requiredTool  // Assuming None is equivalent to false
-        }))
-    );const [workoutTime, setWorkoutTime] = useState<IWorkoutTime>(edit_exercise_plan!.workoutTime);
+    
+    const [exerciseUnits, setExerciseUnits] = useState<IExercise[]>([]);
+    const [workoutTime, setWorkoutTime] = useState<IWorkoutTime>({
+        type: 'specific',
+        days: undefined,
+        date: new Date() // Initialize as undefined or set a default date (e.g., new Date())
+    });
+
+    useEffect(() => {
+        if (edit_exercise_plan) {
+            // Set exercise units based on the workout plan
+            const newExerciseUnits = edit_exercise_plan.exercises.map(item => ({
+                type: item.exercise.type,
+                name: item.exercise.name,
+                frequencyOrDuration: item.exercise.frequencyOrDuration,
+                weight: item.exercise.weight,
+                requiredTool: item.exercise.requiredTool
+            }));
+
+            // Update state based on edit_exercise_plan data
+            setExerciseUnits(newExerciseUnits);
+            const workoutTimeData =  edit_exercise_plan.workoutTime || { type: 'no_specific', days: undefined, date: undefined };
+            if (typeof workoutTimeData.date === 'string') {
+                workoutTimeData.date = new Date(workoutTimeData.date);
+            }
+
+            setWorkoutTime(workoutTimeData);
+    
+        }
+    }, [edit_exercise_plan]);
+
+    // Log workoutTime whenever it changes
+    useEffect(() => {
+        console.log("Current Workout Time:", edit_exercise_plan? edit_exercise_plan.workoutTime.date : '');
+       
+    }, [workoutTime]);
+
+
+
 
     const handleWorkoutTimeChange = (type: 'specific' | 'period') => {
         setWorkoutTime({
@@ -146,7 +169,7 @@ const Modal_Edit: React.FC<{ isOpen: boolean; onClose: () => void; edit_exercise
     };
     
     const handleAddExerciseUnit = () => {
-        setExerciseUnits([...exerciseUnits, { exerciseType: '', exerciseName: '', frequencyOrDuration: 1, weight: 0, requiredTool:false }]);
+        setExerciseUnits([...exerciseUnits, { type: '', name: '', frequencyOrDuration: 1, weight: 0, requiredTool:false }]);
     };
 
     const handleDeleteExerciseUnit = (index: number) => {
@@ -162,11 +185,11 @@ const Modal_Edit: React.FC<{ isOpen: boolean; onClose: () => void; edit_exercise
                 
                 exercise: {
                     
-                    name: unit.exerciseName,
+                    name: unit.name,
                     requiredTool: unit.requiredTool,
                     weight: unit.weight ,
                     frequencyOrDuration: unit.frequencyOrDuration,
-                    type: unit.exerciseType,
+                    type: unit.type,
                 },
                 
             })),
@@ -192,10 +215,12 @@ const Modal_Edit: React.FC<{ isOpen: boolean; onClose: () => void; edit_exercise
     };
     
     // Function to render frequency or duration input
-    const frequencyOrDurationField = (unit, index) => {
-        const exercise = Exercise_List.find(ex => ex.exerciseName === unit.exerciseName);
+    const frequencyOrDurationField = (unit : IExercise, index : number) => {
+        const exercise = Exercise_List.find(ex => ex.exerciseName === unit.name);
         const isFrequency = exercise && exercise.frequencyOrDuration === 'frequency';
-    
+       
+        console.log("is frequency", isFrequency);
+        console.log("exercise name",unit?.name);
         return (
             <div style={{ display: 'flex', alignItems: 'center', width: 'auto' }}>
                 {isFrequency ? (
@@ -253,10 +278,12 @@ const Modal_Edit: React.FC<{ isOpen: boolean; onClose: () => void; edit_exercise
 
 
 
-const weightField = (unit, index) => {
+const weightField = (unit : IExercise, index : number) => {
     // Find the exercise based on the exercise name
-    const exercise = Exercise_List.find(ex => ex.exerciseName === unit.exerciseName);
+    const exercise = Exercise_List.find(ex => ex.exerciseName === unit.name);
     const isToolRequired = exercise?.toolRequired ?? false;
+    console.log("weight", unit, index);
+    console.log("is Tool required",isToolRequired);
     return (
         <div style={{ display: 'flex', alignItems: 'center' }}>
             <input
@@ -301,28 +328,31 @@ const weightField = (unit, index) => {
                 </div>
                 <div className="form-row">
                     {workoutTime.type === 'specific' ? (
-                        <input 
-                            type="date" 
-                            value={workoutTime.date?.toISOString().slice(0, 10)} // Convert to string for input
-                            onChange={(e) => setWorkoutTime({ ...workoutTime, date: new Date(e.target.value) })} // Convert string to Date
-                        />
+                       <input 
+                       type="date" 
+                       value={workoutTime.date ? workoutTime.date.toISOString().slice(0, 10) : ''} // Check if date is defined
+                       onChange={(e) => setWorkoutTime({
+                           ...workoutTime,
+                           date: e.target.value ? new Date(e.target.value) : undefined // Convert string to Date or set to undefined
+                       })} 
+                   />
                     ) : (
                         <div>
-                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-    <button
-        key={day}
-        className={`day-button ${workoutTime.days?.includes(day) ? 'selected' : ''}`} // use optional chaining
-        onClick={() => {
-            const updatedDays = (workoutTime.days || []).includes(day) // Ensure to handle undefined
-                ? (workoutTime.days || []).filter(d => d !== day)
-                : [...(workoutTime.days || []), day]; // Use default empty array
-            setWorkoutTime({ ...workoutTime, days: updatedDays });
-        }}
-    >
-        {day}
-    </button>
-))}
-                        </div>
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                        <button
+                            key={day}
+                            className={`day-button ${workoutTime.days?.includes(day) ? 'selected' : ''}`} // Use optional chaining
+                            onClick={() => {
+                                const updatedDays = (workoutTime.days || []).includes(day)
+                                    ? (workoutTime.days || []).filter(d => d !== day)
+                                    : [...(workoutTime.days || []), day];
+                                setWorkoutTime({ ...workoutTime, days: updatedDays });
+                            }}
+                        >
+                            {day}
+                        </button>
+                    ))}
+                </div>
                     )}
                 </div>
 
@@ -334,14 +364,14 @@ const weightField = (unit, index) => {
                         <label></label> 
                     </div>
     
-                    <div className="exercise-units" style={{ maxHeight: '300px', overflowY: exerciseUnits.length > 6 ? 'auto' : 'hidden' }}>
+                    <div className="exercise-units" style={{ maxHeight: '300px' }}>
                         {exerciseUnits.map((unit, index) => (
                             <div className="form-row" key={index}>
                                 <select onChange={(e) => {
                                     const updatedUnits = [...exerciseUnits];
-                                    updatedUnits[index].exerciseType = e.target.value;
+                                    updatedUnits[index].type = e.target.value;
                                     setExerciseUnits(updatedUnits);
-                                }} value={unit.exerciseType}>
+                                }} value={unit.type}>
                                     <option value="">Select Type</option>
                                     {completeExerciseTypes.map((type) => (
                         <option key={type} value={type}>{type}</option>
@@ -349,24 +379,24 @@ const weightField = (unit, index) => {
                                 </select>
                                 <select onChange={(e) => {
                                     const updatedUnits = [...exerciseUnits];
-                                    updatedUnits[index].exerciseName = e.target.value;
+                                    updatedUnits[index].name = e.target.value;
     
                                             // Find the corresponding exercise type based on the selected exercise name
                 const selectedExercise = Exercise_List.find(exercise => exercise.exerciseName === e.target.value);
                 if (selectedExercise) {
-                    updatedUnits[index].exerciseType = selectedExercise.exerciseType; // Update exercise type
+                    updatedUnits[index].type = selectedExercise.exerciseType; // Update exercise type
                 
                 }
                                     setExerciseUnits(updatedUnits);
                                 }}
                                 
-                                value={unit.exerciseName} disabled={!unit.exerciseType}>
+                                value={unit.name} disabled={!unit.type}>
                                      <option value="">Select Exercise</option>
-            {unit.exerciseType === 'All'
+            {unit.type === 'All'
                 ? Exercise_List.map(exercise => (
                     < option key={exercise.exerciseName} value={exercise.exerciseName}>{exercise.exerciseName}</option>
                     ))
-                : Exercise_List.filter(exercise => exercise.exerciseType === unit.exerciseType).map(exercise => (
+                : Exercise_List.filter(exercise => exercise.exerciseType === unit.type).map(exercise => (
                     <option key={exercise.exerciseName} value={exercise.exerciseName}>{exercise.exerciseName}</option>
                     ))}
                     </select>
@@ -392,10 +422,10 @@ const weightField = (unit, index) => {
                             className="done-button" 
                             disabled={
                                 exerciseUnits.some(unit =>
-                                { if (unit.exerciseType === '' || unit.exerciseName === '') return true;
+                                { if (unit.type === '' || unit.name === '') return true;
 
                             // Find the corresponding exercise from the Exercise_List
-                            const exercise = Exercise_List.find(ex => ex.exerciseName === unit.exerciseName);
+                            const exercise = Exercise_List.find(ex => ex.exerciseName === unit.name);
                             
                             // Determine if weight is necessary
                             const isToolRequired = exercise && exercise.toolRequired;

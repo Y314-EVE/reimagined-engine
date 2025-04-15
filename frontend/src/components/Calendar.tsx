@@ -416,7 +416,7 @@ const weightField = (unit, index) => {
                         <label></label> 
                     </div>
     
-                    <div className="exercise-units" style={{ maxHeight: '300px', overflowY: exerciseUnits.length > 6 ? 'auto' : 'hidden' }}>
+                    <div className="exercise-units" style={{ maxHeight: '300px'  }}>
                         {exerciseUnits.map((unit, index) => (
                             <div className="form-row" key={index}>
                                 <select onChange={(e) => {
@@ -751,6 +751,8 @@ const weightField = (unit, index) => {
                                         ))}
                                     </ul>
                                    {/* <button onClick={() => {setIsModalOpen(true); setEditExercisePlan(plan);}} className="edit-button">edit</button> */}
+                                
+                                   <button onClick={(e) => {e.stopPropagation() ;setIsModalOpen(true); setEditExercisePlan(plan);}} className="edit-button">edit</button> 
                                 <button
                                     className="delete_button"
                                     onClick={(e) => {
@@ -778,8 +780,9 @@ const weightField = (unit, index) => {
                 <div className="exercise_list_body">
         {
             handleExerciseListing(filterPlans)
+           
         }
-
+<Modal_Edit isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} edit_exercise_plan={editExercisePlan} />
 {/*<Modal_Edit isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} edit_exercise_plan={editExercisePlan} />*/}
     </div>
                 <footer className="exercise_list_footer">
