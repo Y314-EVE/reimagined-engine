@@ -24,7 +24,7 @@ const TopBar = (props: TopBarProps) => {
         return parts[0] === "access_token" ? parts[1] : prev;
       }, "");
       const userInfoResponse = await axios.post(
-        "http://localhost:5000/api/auth/user-info",
+        "http://localhost:5003/api/auth/user-info",
         {},
         {
           headers: { Authorization: token },
@@ -67,7 +67,7 @@ const TopBar = (props: TopBarProps) => {
             className={`select-none px-4 pt-2 mx-4 rounded-t-lg ${props.mode == "chat" ? "hover:bg-green-200 cursor-pointer text-black dark:text-white dark:hover:text-black" : "text-black bg-green-400"}`}
             onClick={() => {
               if (props.mode == "chat") {
-                navigate("/schedule");
+                navigate("/calendar");
               }
             }}
           >
@@ -112,7 +112,7 @@ const TopBar = (props: TopBarProps) => {
                   return parts[0] === "refresh_token" ? parts[1] : prev;
                 }, "");
               await axios
-                .post("http://localhost:5000/api/auth/logout", {
+                .post("http://localhost:5003/api/auth/logout", {
                   accessToken: accessToken,
                   refreshToken: refreshToken,
                 })

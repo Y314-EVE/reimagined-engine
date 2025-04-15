@@ -22,14 +22,14 @@ const Chatlist = () => {
       return parts[0] === "access_token" ? parts[1] : prev;
     }, "");
     const createChatResponse = await axios.post(
-      "http://localhost:5000/api/chat/create",
+      "http://localhost:5003/api/chat/create",
       {},
       { headers: { Authorization: token } },
     );
     if (createChatResponse.data.code === 201) {
       setSelectedChat(createChatResponse.data.payload._id);
       const chatListResponse = await axios.get(
-        "http://localhost:5000/api/chat/list-chats",
+        "http://localhost:5003/api/chat/list-chats",
         {
           headers: {
             Authorization: token,

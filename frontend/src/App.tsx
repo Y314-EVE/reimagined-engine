@@ -9,6 +9,10 @@ import {
   Profile,
 } from "./containers";
 
+import {
+  Calendar,
+  TrackerDisplay
+} from "./components";
 function App() {
   const isLoggedIn = () => {
     return document.cookie.includes("refresh_token");
@@ -19,6 +23,14 @@ function App() {
         path="/"
         element={isLoggedIn() ? <Navigate replace to="/chat" /> : <Login />}
       />
+      <Route
+      path="/calendar"
+      element = {isLoggedIn()?<Calendar/> : <Navigate replace to = "/"/>}/>
+
+<Route
+      path="/exercise-tracker"
+      element = {isLoggedIn()?<TrackerDisplay /> : <Navigate replace to = "/"/>}/>
+
       <Route
         path="/chat"
         element={isLoggedIn() ? <Chat /> : <Navigate replace to="/" />}

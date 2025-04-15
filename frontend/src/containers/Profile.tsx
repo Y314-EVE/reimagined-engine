@@ -26,7 +26,7 @@ const Profile = () => {
         return parts[0] === "access_token" ? parts[1] : prev;
       }, "");
       const userInfoResponse = await axios.post(
-        "http://localhost:5000/api/auth/user-info",
+        "http://localhost:5003/api/auth/user-info",
         {},
         {
           headers: { Authorization: token },
@@ -45,7 +45,7 @@ const Profile = () => {
       return parts[0] === "access_token" ? parts[1] : prev;
     }, "");
     const updateNameResponse = await axios.put(
-      "http://localhost:5000/api/auth/update-name",
+      "http://localhost:5003/api/auth/update-name",
       { name: newName },
       {
         headers: { Authorization: token },
@@ -68,7 +68,7 @@ const Profile = () => {
         return parts[0] === "access_token" ? parts[1] : prev;
       }, "");
       const passwordChangResponse = await axios.put(
-        "http://localhost:5000/api/auth/change-password",
+        "http://localhost:5003/api/auth/change-password",
         {
           password: password,
           newPassword: newPassword,

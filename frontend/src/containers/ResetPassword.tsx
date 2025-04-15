@@ -22,7 +22,7 @@ const ResetPassword = () => {
   ) => {
     try {
       const resetResponse = await axios.put(
-        "http://localhost:5000/api/auth/reset-password",
+        "http://localhost:5003/api/auth/reset-password",
         {
           token: token,
           email: email,

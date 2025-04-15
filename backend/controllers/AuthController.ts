@@ -88,7 +88,7 @@ class AuthController {
         <p>Thank you for registering with Fitness Coach LLM!</p>
         <br/>
         <p>Please click on the following link to verify your email address:</p>
-        http://localhost:5000/api/auth/verify-email/${token}/${email}`,
+        http://localhost:5003/api/auth/verify-email/${token}/${email}`,
       };
 
       const newVerification = await new Verification({
@@ -417,11 +417,11 @@ class AuthController {
         subject: "Fitness Coach LLM email verification",
         html:
           "<p>Please click on the following link to verify your email address:</p>" +
-          '<a href="http://localhost:5000/api/auth/verify-email/' +
+          '<a href="http://localhost:5003/api/auth/verify-email/' +
           token +
           "/" +
           email +
-          '">http://localhost:5000/api/auth/verify-email/' +
+          '">http://localhost:5003/api/auth/verify-email/' +
           token +
           "/" +
           email +
