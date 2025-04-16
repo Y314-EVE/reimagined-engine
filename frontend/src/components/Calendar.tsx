@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import { tokenUpdate } from "../helpers";
 import axios from 'axios';
 import { TopBar } from '.';
+import Modal_Edit from './ModalForEdit';
 // Base URL for the API
 const API_URL = 'http://localhost:5003/api/exercise';
 
@@ -169,16 +170,23 @@ export const createExercisePlan = async (
     }
 };
 
-/*export const modifyExercisePlan = async (id: string, exercisePlan: IExercisePlan) => {
+export const modifyExercisePlan = async (id: string, exercisePlan: Omit<IExercisePlan, '_id' | '_user_id' >) => {
+
+    await tokenUpdate();
+    const token = document.cookie.split("; ").reduce((prev, curr) => {
+      const parts = curr.split("=");
+      return parts[0] === "access_token" ? parts[1] : prev;
+    }, "");
+    
   try {
-    const response = await axios.put<IExercisePlan>(`${API_URL}/exercise-plans/${id}`, exercisePlan);
+    const response = await axios.patch<IExercisePlan>(`${API_URL}/edit-exercise-plan/${id}`, exercisePlan, { headers: { Authorization: token } },);
     return response.data; // Returns the updated exercise plan
   } catch (error) {
     console.error("Error modifying exercise plan:", error);
     throw error;
   }
 };
-*/
+
 
 export const deleteExercisePlan = async (id: string) => {
     await tokenUpdate();
@@ -203,7 +211,9 @@ export const deleteExercisePlan = async (id: string) => {
 
 const Modal: React.FC<{ isOpen: boolean; onClose: () => void; onSubmit: (data: any[]) => void }> = ({ isOpen, onClose, onSubmit }) => {
     
+    // Define the state with the desired structure
     const [exerciseUnits, setExerciseUnits] = useState<Array<{ exerciseType: string; exerciseName: string; frequencyOrDuration: number; weight: number,requiredTool : boolean }>>([]);
+    
     const [workoutTime, setWorkoutTime] = useState<IWorkoutTime>({
         type: 'specific',
         days: [],
@@ -406,7 +416,7 @@ const weightField = (unit, index) => {
                         <label></label> 
                     </div>
     
-                    <div className="exercise-units" style={{ maxHeight: '300px', overflowY: exerciseUnits.length > 6 ? 'auto' : 'hidden' }}>
+                    <div className="exercise-units" style={{ maxHeight: '300px'  }}>
                         {exerciseUnits.map((unit, index) => (
                             <div className="form-row" key={index}>
                                 <select onChange={(e) => {
@@ -506,7 +516,11 @@ const weightField = (unit, index) => {
         const [filterPlans, setFilterPlans] = useState<IExercisePlan[]>([])
         const [isFiltered, setIsFiltered] = useState<boolean>(false); // State to track if we are showing today's plans
         const [toggle,setToggle] = useState<number>(0);
+        const [isModalOpen, setIsModalOpen] = useState(false);
         const [selectedDay, setSelectedDay] = useState<string>("None")
+        const [editExercisePlan, setEditExercisePlan] = useState<IExercisePlan>()
+
+
         const handleExerciseSelect = (exercise : IExercisePlan) => {
             // Navigate to ExerciseTracker and pass the selected exercise plan as state
             
@@ -687,7 +701,7 @@ const weightField = (unit, index) => {
         const handleExerciseListing = (exercisePlans: IExercisePlan[]) => {
             return (
                 <>
-                    {exercisePlans.map((plan) => {
+                    {exercisePlans.filter(plan => plan.workoutTime.type !== "no_specific").map((plan) => {
                         // Log the raw date for debugging
                         const rawDate = plan.workoutTime.date; 
                         
@@ -736,7 +750,9 @@ const weightField = (unit, index) => {
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
+                                   {/* <button onClick={() => {setIsModalOpen(true); setEditExercisePlan(plan);}} className="edit-button">edit</button> */}
+                                
+                                   <button onClick={(e) => {e.stopPropagation() ;setIsModalOpen(true); setEditExercisePlan(plan);}} className="edit-button">edit</button> 
                                 <button
                                     className="delete_button"
                                     onClick={(e) => {
@@ -746,6 +762,8 @@ const weightField = (unit, index) => {
                                 >
                                     - {/* Minus symbol for deletion */}
                                 </button>
+                                </div>
+                                
                             </div>
                         );
                     })}
@@ -762,7 +780,10 @@ const weightField = (unit, index) => {
                 <div className="exercise_list_body">
         {
             handleExerciseListing(filterPlans)
+           
         }
+<Modal_Edit isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} edit_exercise_plan={editExercisePlan} />
+{/*<Modal_Edit isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} edit_exercise_plan={editExercisePlan} />*/}
     </div>
                 <footer className="exercise_list_footer">
                     <button
@@ -794,11 +815,7 @@ const weightField = (unit, index) => {
         const [error, setError] = useState<string | null>(null); // State to hold error messages
         const [ ClickDate, setClickDate] = useState<IWorkoutTime>();
     
-        
-   // Log ClickDate whenever it changes
-   useEffect(() => {
-    console.log(ClickDate);
-}, [ClickDate]); 
+  
 
         const changeMonth = (increment: number) => {
             const newDate = new Date(currentDate);
@@ -859,7 +876,7 @@ const weightField = (unit, index) => {
         Fri: 'Friday',
         Sat: 'Saturday'
     }; 
-        const [width, setWidth] = useState(70); // Initial width of left panel (70%)
+        const [width, setWidth] = useState(50); // Initial width of left panel (40%)
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
         const startX = e.clientX;
@@ -883,7 +900,17 @@ const weightField = (unit, index) => {
             <div className = "schedule"> 
             <TopBar mode="schedule" /> 
             <div className="resizable-container">
-            <div className="left-panel" style={{ width: `${width}%` }}> {}
+
+
+            <div  className="left-panel" style={{ width: `${width}%` }}>
+                     { <ExercisePlansList  workoutTime={ClickDate} />}
+                 </div>
+                
+              {/*<div className="divider" {onMouseDown={handleMouseDown} } />    */}
+              <div className="divider" />   
+            
+                 
+                 <div className="right-panel"> {}
              
              {
                  
@@ -924,11 +951,6 @@ const weightField = (unit, index) => {
                  </div>
          }
          </div>
-     
-             <div className="divider" onMouseDown={handleMouseDown} />
-                 <div className="right-panel">
-                     { <ExercisePlansList  workoutTime={ClickDate} />}
-                 </div>
              </div>
          </div>
      

@@ -96,7 +96,7 @@ class MessageController {
         const message =
           chatTarget && chatTarget.messages.length > 0
             ? await Message.findById(
-                chatTarget.messages[chatTarget.messages.length - 1],
+                chatTarget.messages[chatTarget.messages.length - 1]
               )
             : null;
         const context = message ? message.context : [];
@@ -192,7 +192,6 @@ class MessageController {
               "http://localhost:11434/api/chat",
               {
                 model: "hf.co/Eve-31415/fitness-training",
-                // model: "llama3.1",
                 messages: history,
                 stream: false,
                 options: {
@@ -201,7 +200,7 @@ class MessageController {
                   temperature: 0.5,
                   top_p: 0.9,
                 },
-              },
+              }
             );
             const { message } = promptResponse.data;
             respondMessage.content = message.content;

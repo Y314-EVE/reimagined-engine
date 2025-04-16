@@ -8,31 +8,33 @@ html, body, #root {
 }
 
 .schedule{
-    
-    height:100%;
-}
-
-.left-panel {
-    background-color: #f0f0f0; /* Background for the left panel */
-    transition: width 0.2s ease; /* Smooth transition for resizing */
+    display: flex;
+    flex-direction: column; /* Arrange children vertically */
+    height: 100vh; /* Full viewport height */ 
+   
 }
 
 .right-panel {
+    background-color: #050505; /* Background for the left panel */
+    /*transition: width 0.2s ease; /* Smooth transition for resizing */
+}
+
+.left-panel {
     flex-grow: 1; /* Right panel takes remaining space */
     background-color: #050505; /* Background for the right panel */
 }
 
 .divider {
-    cursor: ew-resize; /* Resize cursor */
+    /*cursor: ew-resize; /* Resize cursor */
     width: 5px; /* Width for divider */
     background-color: #6f6d6d; /* Divider color */
 }
 
 /* Add more width classes as necessary */
 .calendar {
-    flex: 0 0 70%; /* Left side: Calendar (70% width) */
-    height: 100%; /* Full height */
-    overflow-y: auto; /* Scroll if content overflows */
+    flex: 0 0 40%;
+    height: 40%; /* Full height */
+    
     display: flex;
     flex-direction: column; /* Stack header and days */
     position: relative; /* Relative positioning for absolute children */
@@ -40,12 +42,11 @@ html, body, #root {
 }
 
 .module {
-    flex: 0 0 30%; /* Right side: Side Panel (30% width) */
+    flex: 0 0 60%; /* Right side: Side Panel (30% width) */
     padding: 16px; /* Add some padding */
     background-color: #f0f0f0; /* Light background color */
     border-left: 1px solid #ccc; /* Optional: add a border for separation */
     height: 100%; /* Full height */
-    overflow-y: auto; /* Scroll if content overflows */
 }
 
 
@@ -92,7 +93,7 @@ html, body, #root {
     justify-content: center;
     border: 1px solid #eee;
     border-radius: 4px;
-    background-color: #f9f9f9;
+    background-color: #5b5b5b;
 }
 
 .exercise-detail {
@@ -114,7 +115,10 @@ html, body, #root {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: auto; /* Enable scroll if needed */
+
     z-index: 1000; /* Ensure it overlays other content */
+
 }
 
 .modal-content {
@@ -225,6 +229,20 @@ html, body, #root {
     color: red; /* Red color for delete */
 }
 
+.edit-button {
+    background-color: rgba(34, 255, 0, 0.795); /* Red color for delete */
+    color: white; /* Text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px 10px; /* Padding */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.edit-button:hover {
+    background-color: rgba(28, 139, 0, 0.717); /* Darker red on hover */
+}
+
 
 
 .form-row {
@@ -280,7 +298,7 @@ html, body, #root {
 }
 
 .exercise_list_item.selected {
-    background-color: #d1e7dd; /* Highlight selected exercise plan */
+    background-color: #628374; /* Highlight selected exercise plan */
 }
 
 .delete_button {

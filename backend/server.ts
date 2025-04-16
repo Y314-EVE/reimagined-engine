@@ -31,7 +31,7 @@ const expressServer = app.listen(PORT, () => {
 });
 
 let socket: Socket;
-const io = new Server(expressServer, {});
+const io = new Server(expressServer, { cors: { origin: "http://localhost:5173" } });
 
 io.on("connection", (iosocket) => {
   socket = iosocket;
