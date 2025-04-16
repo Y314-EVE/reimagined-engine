@@ -66,7 +66,8 @@ export const ChatProvider = (props: { children: ReactNode }) => {
     if (!socket) {
 
 
-      setSocket(io("http://localhost:5003"));
+      setSocket(io("http://localhost:5003", { transports: ["websocket"] }));
+
 
     }
   }, []);
