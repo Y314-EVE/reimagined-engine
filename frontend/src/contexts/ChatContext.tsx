@@ -64,7 +64,8 @@ export const ChatProvider = (props: { children: ReactNode }) => {
   };
   useEffect(() => {
     if (!socket) {
-      setSocket(io("http://localhost:5003", { transports: ['websocket', 'polling'] }));
+
+      setSocket(io("http://localhost:5003"));
     }
   }, []);
   useEffect(() => {
