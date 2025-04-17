@@ -411,7 +411,7 @@ const weightField = (unit, index) => {
                     <div className="form-row">
                         <label>Exercise Type:</label>
                         <label>Exercise Name:</label>
-                        <label>Frequency:</label>
+                        <label>Frequency/Duration:</label>
                         <label>Weight:</label> 
                         <label></label> 
                     </div>

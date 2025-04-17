@@ -78,13 +78,13 @@ const TopBar = (props: TopBarProps) => {
       </div>
       <div
         className="px-10 py-4 flex flex-row justify-center items-center border-l-2 bg-black cursor-pointer hover:invert mix-blend-difference select-none"
-        onClick={() => setIsProfileOpen(!isProfileOpen)}
+        onClick={() => setIsProfileOpen(!isProfileOpen)}        
       >
         <p className="text-gray-400 font-bold">{`Hi, ${userInfo.name}`}</p>
       </div>
       {isProfileOpen && (
         <div
-          className="absolute right-0 top-14 bg-white dark:bg-black border-2 shadow-lg rounded-lg mt-2 p-4 min-w-48 flex flex-col"
+          className="absolute right-0 top-14 bg-white dark:bg-black border-2 shadow-lg rounded-lg mt-2 p-4 min-w-48 flex flex-col z-10"
           ref={menuRef}
         >
           <p>{`${userInfo.name}`}</p>
@@ -135,5 +135,6 @@ const TopBar = (props: TopBarProps) => {
     </div>
   );
 };
+
 
 export default TopBar;
