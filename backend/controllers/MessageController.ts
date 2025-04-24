@@ -195,7 +195,7 @@ class MessageController {
                 
                
                
-               model: "hf.co/Eve-31415/fitness-training",
+                model: "hf.co/Eve-31415/fitness-training",
                 messages: history,
                 stream: false,
                 options: {
