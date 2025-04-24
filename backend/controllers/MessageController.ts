@@ -191,10 +191,6 @@ class MessageController {
             const promptResponse = await axios.post(
               "http://localhost:11434/api/chat",
               {
-               // model: "hf.co/Eve-31415/fitness-training",
-                
-               
-               
                 model: "hf.co/Eve-31415/fitness-training",
                 messages: history,
                 stream: false,
