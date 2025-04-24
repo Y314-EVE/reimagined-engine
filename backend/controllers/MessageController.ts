@@ -192,11 +192,11 @@ class MessageController {
               "http://localhost:11434/api/chat",
               {
                // model: "hf.co/Eve-31415/fitness-training",
-                 model: "llama3.2",
+                 model: "hf.co/Eve-31415/fitness-training",
                 messages: history,
                 stream: false,
                 options: {
-                 // num_ctx: 65536,
+                  num_ctx: 65536,
                   num_predict: -2,
                   temperature: 0.5,
                   top_p: 0.9,
